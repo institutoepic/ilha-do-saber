@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+// framer-motion reservado para animações futuras
 
 const CHECKPOINTS = [
   { id: 0, nome: 'Largada', emoji: '🚩', x: 10, y: 72 },
