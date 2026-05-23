@@ -88,7 +88,6 @@ export default function Professor() {
 
   return (
     <div style={styles.container}>
-      {/* Partículas de fundo */}
       <div style={styles.bgParticles}>
         {[...Array(20)].map((_, i) => (
           <div key={i} style={{
@@ -168,7 +167,7 @@ export default function Professor() {
                   )}
                 </div>
 
-                {/* Input pergunta */}
+                {/* Pergunta */}
                 <textarea
                   style={styles.textarea}
                   placeholder={`Digite a pergunta ${i + 1}...`}
@@ -186,7 +185,7 @@ export default function Professor() {
                       </span>
                       <input
                         style={styles.inputOpcao}
-                        placeholder={`Opção ${['A','B','C','D'][j]}`}
+                        placeholder={['A','B','C','D'][j]}
                         value={op}
                         onChange={e => atualizarOpcao(i, j, e.target.value)}
                       />
@@ -199,7 +198,7 @@ export default function Professor() {
                   <span style={styles.respostaLabel}>✅ Resposta certa:</span>
                   <input
                     style={styles.inputResposta}
-                    placeholder="Deve ser igual a uma das opções acima"
+                    placeholder="Igual a uma das opções acima"
                     value={p.resposta_certa}
                     onChange={e => atualizarPergunta(i, 'resposta_certa', e.target.value)}
                   />
@@ -228,7 +227,7 @@ export default function Professor() {
             ))}
           </div>
 
-          {/* Botões rodapé */}
+          {/* Rodapé */}
           <div style={styles.rodape}>
             <button style={styles.botaoSalvar} onClick={salvarPerguntas}>
               {salvando ? '✅ Salvo com sucesso!' : '💾 Salvar todas as perguntas'}
@@ -347,7 +346,12 @@ const styles = {
     gap: '2px',
   },
   statNum: { fontSize: '1.6rem', fontWeight: '900', lineHeight: 1 },
-  statLabel: { fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1px' },
+  statLabel: {
+    fontSize: '0.65rem',
+    color: 'rgba(255,255,255,0.4)',
+    textTransform: 'uppercase',
+    letterSpacing: '1px',
+  },
   abas: {
     display: 'flex',
     gap: '4px',
@@ -375,123 +379,144 @@ const styles = {
     padding: '24px 30px',
     position: 'relative',
     zIndex: 1,
-    maxWidth: '1100px',
+    maxWidth: '1200px',
     margin: '0 auto',
+    boxSizing: 'border-box',
   },
   perguntasGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
     gap: '16px',
     marginBottom: '20px',
   },
-card: {
+  card: {
     background: 'rgba(255,255,255,0.04)',
     borderRadius: '16px',
-    padding: '20px',
+    padding: '16px',
     border: '1px solid rgba(139,47,201,0.2)',
     backdropFilter: 'blur(10px)',
     display: 'flex',
     flexDirection: 'column',
     gap: '10px',
     minWidth: 0,
+    boxSizing: 'border-box',
     overflow: 'hidden',
   },
   cardHeader: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
+    minWidth: 0,
   },
-  cardNumeroWrap: { display: 'flex', alignItems: 'center', gap: '8px' },
-  cardEmoji: { fontSize: '1.4rem' },
+  cardNumeroWrap: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    minWidth: 0,
+  },
+  cardEmoji: { fontSize: '1.3rem', flexShrink: 0 },
   cardNumero: {
-    fontSize: '0.85rem',
+    fontSize: '0.8rem',
     fontWeight: '700',
     color: '#C026D3',
     textTransform: 'uppercase',
     letterSpacing: '1px',
+    whiteSpace: 'nowrap',
   },
   badgeAoVivo: {
-    fontSize: '0.65rem',
+    fontSize: '0.6rem',
     background: 'rgba(233,30,140,0.2)',
     color: '#E91E8C',
-    padding: '3px 10px',
+    padding: '3px 8px',
     borderRadius: '20px',
     border: '1px solid rgba(233,30,140,0.5)',
     animation: 'blink 1.5s infinite',
+    whiteSpace: 'nowrap',
+    flexShrink: 0,
   },
   badgeConcluida: {
-    fontSize: '0.65rem',
+    fontSize: '0.6rem',
     background: 'rgba(76,175,80,0.15)',
     color: '#4caf50',
-    padding: '3px 10px',
+    padding: '3px 8px',
     borderRadius: '20px',
     border: '1px solid rgba(76,175,80,0.3)',
+    whiteSpace: 'nowrap',
+    flexShrink: 0,
   },
   textarea: {
     width: '100%',
-    padding: '10px 14px',
+    padding: '10px 12px',
     borderRadius: '10px',
     border: '1px solid rgba(139,47,201,0.2)',
     background: 'rgba(255,255,255,0.05)',
     color: 'white',
-    fontSize: '0.9rem',
+    fontSize: '0.88rem',
     resize: 'none',
     outline: 'none',
     fontFamily: "'Segoe UI', Arial, sans-serif",
     boxSizing: 'border-box',
     lineHeight: '1.5',
+    display: 'block',
   },
   opcoesGrid: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
-    gap: '8px',
+    gap: '6px',
+    width: '100%',
+    boxSizing: 'border-box',
   },
   opcaoWrap: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
+    gap: '6px',
     background: 'rgba(255,255,255,0.03)',
-    borderRadius: '10px',
-    padding: '4px 10px 4px 6px',
-    border: '1px solid rgba(255,255,255,0.06)',
+    borderRadius: '8px',
+    padding: '4px 8px 4px 6px',
+    border: '1px solid rgba(255,255,255,0.07)',
+    boxSizing: 'border-box',
+    minWidth: 0,
+    overflow: 'hidden',
   },
   opcaoLetra: {
-    width: '22px',
-    height: '22px',
+    width: '20px',
+    height: '20px',
     borderRadius: '50%',
     background: 'rgba(139,47,201,0.3)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '0.7rem',
+    fontSize: '0.65rem',
     fontWeight: 'bold',
     color: '#C026D3',
     flexShrink: 0,
   },
   inputOpcao: {
     flex: 1,
-    padding: '8px 4px',
+    minWidth: 0,
+    width: '100%',
+    padding: '6px 0',
     border: 'none',
     background: 'transparent',
     color: 'white',
-    fontSize: '0.85rem',
+    fontSize: '0.82rem',
     outline: 'none',
     fontFamily: "'Segoe UI', Arial, sans-serif",
   },
   respostaWrap: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '6px',
+    gap: '5px',
   },
   respostaLabel: {
-    fontSize: '0.75rem',
+    fontSize: '0.72rem',
     color: 'rgba(76,175,80,0.8)',
     fontWeight: '600',
   },
   inputResposta: {
     width: '100%',
-    padding: '10px 14px',
-    borderRadius: '10px',
+    padding: '9px 12px',
+    borderRadius: '8px',
     border: '1px solid rgba(76,175,80,0.3)',
     background: 'rgba(76,175,80,0.05)',
     color: 'white',
@@ -499,16 +524,18 @@ card: {
     outline: 'none',
     fontFamily: "'Segoe UI', Arial, sans-serif",
     boxSizing: 'border-box',
+    display: 'block',
   },
   botaoLancar: {
     width: '100%',
-    padding: '12px',
-    borderRadius: '12px',
-    fontSize: '0.95rem',
+    padding: '11px',
+    borderRadius: '10px',
+    fontSize: '0.9rem',
     fontWeight: '700',
     cursor: 'pointer',
     fontFamily: "'Segoe UI', Arial, sans-serif",
     letterSpacing: '0.5px',
+    boxSizing: 'border-box',
   },
   rodape: {
     display: 'flex',
