@@ -380,11 +380,11 @@ const styles = {
   },
   perguntasGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
     gap: '16px',
     marginBottom: '20px',
   },
-  card: {
+card: {
     background: 'rgba(255,255,255,0.04)',
     borderRadius: '16px',
     padding: '20px',
@@ -392,7 +392,9 @@ const styles = {
     backdropFilter: 'blur(10px)',
     display: 'flex',
     flexDirection: 'column',
-    gap: '12px',
+    gap: '10px',
+    minWidth: 0,
+    overflow: 'hidden',
   },
   cardHeader: {
     display: 'flex',
