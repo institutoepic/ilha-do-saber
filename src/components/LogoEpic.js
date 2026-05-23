@@ -2,87 +2,75 @@ import React from 'react';
 
 export default function LogoEpic({ size = 'md', white = false }) {
   const sizes = {
-    sm: { helmet: 28, epic: '1rem', inst: '0.4rem', gap: 6 },
-    md: { helmet: 40, epic: '1.4rem', inst: '0.5rem', gap: 8 },
-    lg: { helmet: 60, epic: '2rem', inst: '0.65rem', gap: 10 },
-    xl: { helmet: 90, epic: '3rem', inst: '0.85rem', gap: 14 },
+    sm: { helmet: 28, epic: '1rem',  inst: '0.4rem', gap: 6  },
+    md: { helmet: 40, epic: '1.4rem', inst: '0.5rem', gap: 8  },
+    lg: { helmet: 60, epic: '2rem',  inst: '0.65rem', gap: 10 },
+    xl: { helmet: 90, epic: '3rem',  inst: '0.85rem', gap: 14 },
   };
   const s = sizes[size] || sizes.md;
 
   return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: s.gap,
-      userSelect: 'none',
-    }}>
-      {/* Capacete espartano SVG */}
+    <div style={{ display: 'flex', alignItems: 'center', gap: s.gap, userSelect: 'none' }}>
+
+      {/* Capacete espartano — idêntico ao logo Epic */}
       <svg
         width={s.helmet}
         height={s.helmet}
-        viewBox="0 0 100 100"
+        viewBox="0 0 100 120"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* Brilho de fundo */}
-        <circle cx="50" cy="50" r="48" fill="url(#helmetGlow)"/>
-        {/* Corpo do capacete */}
+        {/* Corpo principal do capacete — arco superior */}
         <path
-          d="M20 45 C20 25 35 12 50 12 C65 12 80 25 80 45 L80 58 C80 58 72 62 50 62 C28 62 20 58 20 58 Z"
-          fill="url(#helmetBody)"
+          d="M15 55 C15 25 30 8 50 8 C70 8 85 25 85 55 L85 70 L15 70 Z"
+          fill="white"
         />
-        {/* Viseira */}
+
+        {/* Protetor lateral esquerdo */}
         <path
-          d="M30 48 L30 56 C30 56 38 60 50 60 C62 60 70 56 70 56 L70 48 C70 48 62 52 50 52 C38 52 30 48 30 48 Z"
-          fill="url(#helmetVisor)"
+          d="M15 70 L15 88 C15 88 20 95 28 95 L28 70 Z"
+          fill="white"
         />
-        {/* Abertura da viseira */}
+
+        {/* Protetor lateral direito */}
         <path
-          d="M33 44 L33 54 L50 57 L67 54 L67 44 L50 47 Z"
-          fill="#0a0010"
-          opacity="0.8"
+          d="M85 70 L85 88 C85 88 80 95 72 95 L72 70 Z"
+          fill="white"
         />
-        {/* Crista do capacete */}
+
+        {/* Abertura central da viseira — recorte preto */}
         <path
-          d="M46 12 L46 6 C46 6 48 2 50 2 C52 2 54 6 54 6 L54 12"
-          stroke="url(#crestGrad)"
-          strokeWidth="4"
-          strokeLinecap="round"
+          d="M28 58 L28 70 L50 73 L72 70 L72 58 C72 58 63 63 50 63 C37 63 28 58 28 58 Z"
+          fill="black"
         />
-        {/* Protetor do nariz */}
+
+        {/* Protetor do nariz — desce do centro */}
+        <rect x="44" y="63" width="12" height="32" rx="3" fill="white"/>
+
+        {/* Sombra interna da viseira para dar profundidade */}
         <path
-          d="M47 47 L47 68 C47 68 49 72 50 72 C51 72 53 68 53 68 L53 47"
-          fill="url(#helmetBody)"
+          d="M28 55 C28 55 37 61 50 61 C63 61 72 55 72 55 L72 58 C72 58 63 63 50 63 C37 63 28 58 28 58 Z"
+          fill="rgba(0,0,0,0.3)"
         />
-        {/* Reflexo */}
+
+        {/* Linha divisória horizontal da viseira */}
+        <rect x="15" y="68" width="70" height="4" fill="black"/>
+
+        {/* Base do capacete — queixo */}
         <path
-          d="M28 38 C30 28 38 20 48 18"
-          stroke="rgba(255,255,255,0.3)"
-          strokeWidth="3"
-          strokeLinecap="round"
+          d="M28 95 L28 100 C28 105 35 110 44 110 L44 95 Z"
+          fill="white"
         />
-        <defs>
-          <radialGradient id="helmetGlow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="rgba(139,47,201,0.3)"/>
-            <stop offset="100%" stopColor="rgba(139,47,201,0)"/>
-          </radialGradient>
-          <linearGradient id="helmetBody" x1="20" y1="12" x2="80" y2="72" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#C026D3"/>
-            <stop offset="50%" stopColor="#8B2FC9"/>
-            <stop offset="100%" stopColor="#4a1080"/>
-          </linearGradient>
-          <linearGradient id="helmetVisor" x1="30" y1="48" x2="70" y2="60" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#6B21A8"/>
-            <stop offset="100%" stopColor="#3b0764"/>
-          </linearGradient>
-          <linearGradient id="crestGrad" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
-            <stop offset="0%" stopColor="#E91E8C"/>
-            <stop offset="100%" stopColor="#C026D3"/>
-          </linearGradient>
-        </defs>
+        <path
+          d="M72 95 L72 100 C72 105 65 110 56 110 L56 95 Z"
+          fill="white"
+        />
+
+        {/* Abertura inferior central — boca */}
+        <rect x="44" y="95" width="12" height="15" rx="2" fill="black"/>
       </svg>
 
-      {/* Texto */}
+      {/* Texto EPIC + INSTITUTO */}
       <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
         <span style={{
           fontSize: s.epic,
@@ -102,6 +90,7 @@ export default function LogoEpic({ size = 'md', white = false }) {
           color: white ? 'rgba(255,255,255,0.6)' : 'rgba(192,38,211,0.7)',
           fontWeight: '400',
           marginTop: '1px',
+          fontFamily: "'Segoe UI', Arial, sans-serif",
         }}>
           INSTITUTO
         </span>
