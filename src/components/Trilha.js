@@ -1,21 +1,20 @@
 import React from 'react';
-// framer-motion reservado para animações futuras
 
 const CHECKPOINTS = [
-  { id: 0, nome: 'Largada', emoji: '🚩', x: 10, y: 72 },
-  { id: 1, nome: 'Floresta', emoji: '🌳', x: 26, y: 58 },
-  { id: 2, nome: 'Vulcão',   emoji: '🌋', x: 44, y: 42 },
-  { id: 3, nome: 'Praia',    emoji: '🏖️', x: 62, y: 30 },
-  { id: 4, nome: 'Caverna',  emoji: '🪨', x: 78, y: 22 },
-  { id: 5, nome: 'Tesouro',  emoji: '🏆', x: 92, y: 14 },
+  { id: 0, nome: 'Largada', emoji: '🚩', x: 8,  y: 75 },
+  { id: 1, nome: 'Floresta', emoji: '🌳', x: 24, y: 60 },
+  { id: 2, nome: 'Vulcão',   emoji: '🌋', x: 42, y: 42 },
+  { id: 3, nome: 'Praia',    emoji: '🏖️', x: 60, y: 28 },
+  { id: 4, nome: 'Caverna',  emoji: '🪨', x: 77, y: 18 },
+  { id: 5, nome: 'Tesouro',  emoji: '🏆', x: 92, y: 10 },
 ];
 
 export { CHECKPOINTS };
 
 const CORES_AVATAR = [
-  '#e91e63','#9c27b0','#3f51b5','#00897b',
-  '#f57f17','#c62828','#2e7d32','#1565c0',
-  '#6a1b9a','#00838f','#558b2f','#ef6c00',
+  '#E91E8C','#C026D3','#8B2FC9','#3f51b5',
+  '#00897b','#f57f17','#c62828','#2e7d32',
+  '#1565c0','#6a1b9a','#00838f','#ef6c00',
 ];
 
 export default function Trilha({ alunos, perguntaAtual }) {
@@ -24,160 +23,252 @@ export default function Trilha({ alunos, perguntaAtual }) {
   return (
     <div style={styles.wrapper}>
       <svg
-        viewBox="0 0 1000 320"
+        viewBox="0 0 1000 340"
         width="100%"
         style={styles.svg}
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* Oceano de fundo */}
         <defs>
-          <radialGradient id="oceano" cx="50%" cy="50%" r="70%">
-            <stop offset="0%" stopColor="#1565c0"/>
-            <stop offset="100%" stopColor="#0d47a1"/>
+          {/* Gradientes do céu */}
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#0a0010"/>
+            <stop offset="60%" stopColor="#1a0030"/>
+            <stop offset="100%" stopColor="#0d1a4a"/>
+          </linearGradient>
+          {/* Gradiente da ilha */}
+          <radialGradient id="ilha" cx="50%" cy="70%" r="60%">
+            <stop offset="0%" stopColor="#1a4a1a"/>
+            <stop offset="50%" stopColor="#145214"/>
+            <stop offset="100%" stopColor="#0a2e0a"/>
           </radialGradient>
-          <radialGradient id="ilha" cx="50%" cy="60%" r="60%">
-            <stop offset="0%" stopColor="#43a047"/>
-            <stop offset="60%" stopColor="#388e3c"/>
-            <stop offset="100%" stopColor="#2e7d32"/>
+          {/* Brilho roxo de fundo */}
+          <radialGradient id="glowBg" cx="50%" cy="40%" r="50%">
+            <stop offset="0%" stopColor="rgba(139,47,201,0.15)"/>
+            <stop offset="100%" stopColor="rgba(139,47,201,0)"/>
           </radialGradient>
+          {/* Gradiente oceano */}
+          <linearGradient id="ocean" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#0d2b6e"/>
+            <stop offset="100%" stopColor="#050f2e"/>
+          </linearGradient>
+          {/* Gradiente trilha */}
+          <linearGradient id="trailGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#8B2FC9"/>
+            <stop offset="50%" stopColor="#C026D3"/>
+            <stop offset="100%" stopColor="#E91E8C"/>
+          </linearGradient>
+          {/* Gradiente checkpoint ativo */}
+          <radialGradient id="cpActive" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#E91E8C"/>
+            <stop offset="100%" stopColor="#8B2FC9"/>
+          </radialGradient>
+          {/* Brilho checkpoint */}
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+          <filter id="glowStrong">
+            <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
         </defs>
 
-        <rect width="1000" height="320" fill="url(#oceano)"/>
+        {/* Fundo céu */}
+        <rect width="1000" height="340" fill="url(#sky)"/>
+        <rect width="1000" height="340" fill="url(#glowBg)"/>
 
-        {/* Ondas decorativas */}
-        <path d="M0 280 Q50 270 100 280 Q150 290 200 280 Q250 270 300 280 Q350 290 400 280 Q450 270 500 280 Q550 290 600 280 Q650 270 700 280 Q750 290 800 280 Q850 270 900 280 Q950 290 1000 280 L1000 320 L0 320Z"
-              fill="#0d47a1" opacity="0.5"/>
-        <path d="M0 295 Q60 285 120 295 Q180 305 240 295 Q300 285 360 295 Q420 305 480 295 Q540 285 600 295 Q660 305 720 295 Q780 285 840 295 Q900 305 960 295 Q980 290 1000 295 L1000 320 L0 320Z"
-              fill="#0a3880" opacity="0.6"/>
+        {/* Estrelas */}
+        {[
+          [50,15],[120,8],[200,20],[280,5],[350,18],[420,10],[500,22],
+          [580,8],[650,16],[720,6],[800,20],[880,12],[950,18],[160,30],
+          [440,28],[700,25],[900,30],[80,35],[320,32],[760,28],
+        ].map(([sx,sy],i) => (
+          <circle key={i} cx={sx} cy={sy} r={i%3===0?2:1.2}
+            fill="#fff" opacity={0.4+Math.random()*0.5}/>
+        ))}
 
-        {/* Ilha principal */}
-        <ellipse cx="500" cy="200" rx="480" ry="160" fill="url(#ilha)"/>
-        <ellipse cx="500" cy="185" rx="440" ry="130" fill="#43a047"/>
-        <ellipse cx="500" cy="175" rx="400" ry="110" fill="#4caf50" opacity="0.6"/>
+        {/* Nebulosa roxa */}
+        <ellipse cx="200" cy="60" rx="180" ry="60" fill="rgba(139,47,201,0.08)"/>
+        <ellipse cx="750" cy="40" rx="200" ry="50" fill="rgba(192,38,211,0.06)"/>
 
-        {/* Detalhes da ilha — arbustos e pedras */}
-        <ellipse cx="150" cy="240" rx="45" ry="22" fill="#2e7d32"/>
-        <ellipse cx="850" cy="235" rx="40" ry="20" fill="#2e7d32"/>
-        <ellipse cx="500" cy="270" rx="60" ry="18" fill="#2e7d32"/>
-        <ellipse cx="300" cy="255" rx="30" ry="14" fill="#1b5e20"/>
-        <ellipse cx="700" cy="248" rx="35" ry="15" fill="#1b5e20"/>
+        {/* Oceano */}
+        <ellipse cx="500" cy="340" rx="560" ry="80" fill="url(#ocean)"/>
 
-        {/* Palmeiras decorativas */}
-        <line x1="180" y1="230" x2="175" y2="195" stroke="#5d4037" strokeWidth="4"/>
-        <ellipse cx="172" cy="192" rx="18" ry="10" fill="#2e7d32" transform="rotate(-20,172,192)"/>
-        <ellipse cx="178" cy="190" rx="18" ry="10" fill="#388e3c" transform="rotate(15,178,190)"/>
+        {/* Ondas */}
+        <path d="M0 310 Q80 300 160 310 Q240 320 320 310 Q400 300 480 310 Q560 320 640 310 Q720 300 800 310 Q880 320 960 310 Q980 308 1000 310 L1000 340 L0 340Z"
+              fill="#0a1f5c" opacity="0.7"/>
+        <path d="M0 325 Q100 315 200 325 Q300 335 400 325 Q500 315 600 325 Q700 335 800 325 Q900 315 1000 325 L1000 340 L0 340Z"
+              fill="#070f3a" opacity="0.8"/>
 
-        <line x1="820" y1="225" x2="825" y2="190" stroke="#5d4037" strokeWidth="4"/>
-        <ellipse cx="828" cy="187" rx="18" ry="10" fill="#2e7d32" transform="rotate(20,828,187)"/>
-        <ellipse cx="822" cy="185" rx="18" ry="10" fill="#388e3c" transform="rotate(-15,822,185)"/>
+        {/* ILHA */}
+        <ellipse cx="500" cy="260" rx="490" ry="130" fill="#0a2e0a"/>
+        <ellipse cx="500" cy="248" rx="460" ry="115" fill="#0d3b0d"/>
+        <ellipse cx="500" cy="238" rx="430" ry="100" fill="#145214"/>
+        <ellipse cx="500" cy="228" rx="400" ry="88"  fill="#1a6b1a"/>
+        <ellipse cx="500" cy="220" rx="370" ry="76"  fill="#1e7a1e"/>
 
-        {/* TRILHA — caminho de areia */}
+        {/* Texturas da ilha — arbustos */}
+        <ellipse cx="120" cy="262" rx="55" ry="25" fill="#0d3b0d"/>
+        <ellipse cx="880" cy="258" rx="50" ry="22" fill="#0d3b0d"/>
+        <ellipse cx="320" cy="272" rx="40" ry="18" fill="#0a2e0a"/>
+        <ellipse cx="680" cy="268" rx="45" ry="20" fill="#0a2e0a"/>
+        <ellipse cx="500" cy="278" rx="70" ry="20" fill="#0a2e0a"/>
+
+        {/* Palmeiras */}
+        {[[140,248],[860,244],[220,240],[780,238]].map(([px,py],i) => (
+          <g key={i}>
+            <line x1={px} y1={py} x2={px+(i%2===0?-5:5)} y2={py-45}
+              stroke="#4a2c0a" strokeWidth="5" strokeLinecap="round"/>
+            <ellipse cx={px+(i%2===0?-8:8)} cy={py-48} rx="20" ry="10"
+              fill="#0d4a0d" transform={`rotate(${i%2===0?-25:25},${px},${py-48})`}/>
+            <ellipse cx={px+(i%2===0?5:-5)} cy={py-46} rx="20" ry="9"
+              fill="#145214" transform={`rotate(${i%2===0?15:-15},${px},${py-46})`}/>
+            <ellipse cx={px} cy={py-50} rx="15" ry="8"
+              fill="#1a6b1a" transform={`rotate(${i%2===0?-5:5},${px},${py-50})`}/>
+          </g>
+        ))}
+
+        {/* Rochas decorativas */}
+        {[[200,260],[400,270],[600,268],[800,262]].map(([rx,ry],i) => (
+          <g key={i}>
+            <ellipse cx={rx} cy={ry} rx="12" ry="8" fill="#2a1a0a"/>
+            <ellipse cx={rx-3} cy={ry-2} rx="8" ry="5" fill="#3a2a1a"/>
+          </g>
+        ))}
+
+        {/* TRILHA */}
+        {/* Sombra da trilha */}
         <path
-          d="M95 240 C140 220 180 200 240 175 C300 150 340 135 420 115 C480 100 540 88 620 78 C680 70 740 66 820 58 C860 54 900 52 930 48"
-          fill="none" stroke="#8d6e63" strokeWidth="22" strokeLinecap="round"
+          d="M78 258 C130 235 175 215 240 188 C305 161 355 145 430 122 C490 104 550 90 625 76 C685 65 745 58 820 48 C860 43 900 40 930 36"
+          fill="none" stroke="rgba(0,0,0,0.5)" strokeWidth="28" strokeLinecap="round"
         />
+        {/* Base da trilha */}
         <path
-          d="M95 240 C140 220 180 200 240 175 C300 150 340 135 420 115 C480 100 540 88 620 78 C680 70 740 66 820 58 C860 54 900 52 930 48"
-          fill="none" stroke="#bcaaa4" strokeWidth="14" strokeLinecap="round"
+          d="M78 258 C130 235 175 215 240 188 C305 161 355 145 430 122 C490 104 550 90 625 76 C685 65 745 58 820 48 C860 43 900 40 930 36"
+          fill="none" stroke="#3b1f6b" strokeWidth="24" strokeLinecap="round"
         />
-        {/* Tracejado central da trilha */}
+        {/* Trilha colorida */}
         <path
-          d="M95 240 C140 220 180 200 240 175 C300 150 340 135 420 115 C480 100 540 88 620 78 C680 70 740 66 820 58 C860 54 900 52 930 48"
-          fill="none" stroke="#d7ccc8" strokeWidth="3" strokeLinecap="round"
-          strokeDasharray="4 18"
+          d="M78 258 C130 235 175 215 240 188 C305 161 355 145 430 122 C490 104 550 90 625 76 C685 65 745 58 820 48 C860 43 900 40 930 36"
+          fill="none" stroke="url(#trailGrad)" strokeWidth="16" strokeLinecap="round"
+          opacity="0.8"
+        />
+        {/* Tracejado central */}
+        <path
+          d="M78 258 C130 235 175 215 240 188 C305 161 355 145 430 122 C490 104 550 90 625 76 C685 65 745 58 820 48 C860 43 900 40 930 36"
+          fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="3"
+          strokeLinecap="round" strokeDasharray="6 20"
         />
 
         {/* CHECKPOINTS */}
         {CHECKPOINTS.map((cp, i) => {
           const cx = cp.x * 10;
-          const cy = cp.y * 3.2;
+          const cy = cp.y * 3.4;
           const ativo = i === perguntaAtual + 1;
           const concluido = i <= perguntaAtual;
 
           return (
-            <g key={cp.id}>
-              {/* Halo do checkpoint ativo */}
+            <g key={cp.id} filter={ativo ? "url(#glowStrong)" : concluido ? "url(#glow)" : ""}>
+              {/* Halo externo */}
               {ativo && (
-                <circle cx={cx} cy={cy} r="28" fill="rgba(240,192,64,0.25)"/>
+                <>
+                  <circle cx={cx} cy={cy} r="36" fill="rgba(233,30,140,0.1)"/>
+                  <circle cx={cx} cy={cy} r="28" fill="rgba(233,30,140,0.15)"
+                    stroke="rgba(233,30,140,0.4)" strokeWidth="1"/>
+                </>
               )}
-              {/* Círculo do checkpoint */}
+              {/* Círculo principal */}
               <circle
-                cx={cx} cy={cy} r="20"
-                fill={concluido ? '#f57f17' : ativo ? '#f0c040' : '#1b5e20'}
-                stroke={ativo ? '#ffeb3b' : concluido ? '#ffa726' : '#a5d6a7'}
+                cx={cx} cy={cy} r="22"
+                fill={concluido ? '#4a1080' : ativo ? 'url(#cpActive)' : '#0d2b0d'}
+                stroke={ativo ? '#E91E8C' : concluido ? '#C026D3' : '#2a5a2a'}
                 strokeWidth={ativo ? 3 : 2}
               />
-              {/* Emoji do checkpoint */}
-              <text x={cx} y={cy + 7} textAnchor="middle" fontSize="18">{cp.emoji}</text>
-              {/* Nome do checkpoint */}
-              <rect
-                x={cx - 30} y={cy - 38} width="60" height="16"
-                rx="4" fill="rgba(0,0,0,0.55)"
-              />
-              <text
-                x={cx} y={cy - 26}
-                textAnchor="middle"
-                fontSize="10"
-                fontFamily="Arial"
-                fontWeight="bold"
-                fill={ativo ? '#ffeb3b' : concluido ? '#ffa726' : '#a5d6a7'}
-              >
+              {/* Emoji */}
+              <text x={cx} y={cy+8} textAnchor="middle" fontSize="20">{cp.emoji}</text>
+              {/* Label */}
+              <rect x={cx-34} y={cy-42} width="68" height="18" rx="5"
+                fill="rgba(0,0,0,0.7)"/>
+              <text x={cx} y={cy-29} textAnchor="middle" fontSize="11"
+                fontFamily="Arial" fontWeight="bold"
+                fill={ativo ? '#E91E8C' : concluido ? '#C026D3' : '#5a9a5a'}>
                 {cp.nome}
               </text>
-              {/* Número do checkpoint */}
+              {/* Número */}
               {i > 0 && i < 5 && (
-                <text x={cx} y={cy + 32} textAnchor="middle" fontSize="9" fontFamily="Arial" fill="rgba(255,255,255,0.6)">
+                <text x={cx} y={cy+38} textAnchor="middle" fontSize="9"
+                  fontFamily="Arial" fill="rgba(255,255,255,0.4)">
                   Q{i}
                 </text>
+              )}
+              {/* Check de concluído */}
+              {concluido && i > 0 && (
+                <text x={cx+16} y={cy-14} fontSize="12">✅</text>
               )}
             </g>
           );
         })}
 
-        {/* AVATARES dos alunos */}
+        {/* AVATARES */}
         {lista.map(([id, aluno], i) => {
           const cpIndex = Math.min(aluno.checkpoint || 0, 5);
           const cp = CHECKPOINTS[cpIndex];
           const cx = cp.x * 10;
-          const cy = cp.y * 3.2;
-          const offset = (i % 5) * 16 - 32;
-          const offsetY = Math.floor(i / 5) * 20;
+          const cy = cp.y * 3.4;
+          const col = i % 6;
+          const row = Math.floor(i / 6);
+          const offsetX = (col - 2.5) * 18;
+          const offsetY = row * 22;
           const cor = CORES_AVATAR[i % CORES_AVATAR.length];
 
           return (
             <g key={id}>
-              <circle
-                cx={cx + offset} cy={cy - 30 - offsetY} r="13"
-                fill={cor} stroke="white" strokeWidth="2"
-              />
-              <text
-                x={cx + offset} y={cy - 25 - offsetY}
-                textAnchor="middle" fontSize="13"
-              >
-                {aluno.avatar}
-              </text>
-              <rect
-                x={cx + offset - 18} y={cy - 14 - offsetY}
-                width="36" height="11" rx="3"
-                fill="rgba(0,0,0,0.65)"
-              />
-              <text
-                x={cx + offset} y={cy - 5 - offsetY}
+              {/* Sombra do avatar */}
+              <ellipse cx={cx+offsetX} cy={cy-18-offsetY+2} rx="12" ry="4"
+                fill="rgba(0,0,0,0.4)"/>
+              {/* Brilho se acertou */}
+              {aluno.acertou && (
+                <circle cx={cx+offsetX} cy={cy-28-offsetY} r="16"
+                  fill="rgba(233,30,140,0.2)" stroke="rgba(233,30,140,0.5)"
+                  strokeWidth="1"/>
+              )}
+              {/* Círculo do avatar */}
+              <circle cx={cx+offsetX} cy={cy-28-offsetY} r="13"
+                fill={cor} stroke="white" strokeWidth="2"/>
+              {/* Emoji do avatar */}
+              <text x={cx+offsetX} y={cy-23-offsetY}
+                textAnchor="middle" fontSize="14">{aluno.avatar}</text>
+              {/* Nome */}
+              <rect x={cx+offsetX-18} y={cy-12-offsetY} width="36" height="11"
+                rx="3" fill="rgba(0,0,0,0.75)"/>
+              <text x={cx+offsetX} y={cy-3-offsetY}
                 textAnchor="middle" fontSize="8"
-                fontFamily="Arial" fill="white"
-              >
+                fontFamily="Arial" fill="white">
                 {aluno.nome?.split(' ')[0]}
               </text>
+              {/* Estrela se acertou */}
+              {aluno.acertou && (
+                <text x={cx+offsetX+10} y={cy-36-offsetY} fontSize="10">⭐</text>
+              )}
             </g>
           );
         })}
 
-        {/* Estrelinhas decorativas no céu */}
+        {/* Partículas mágicas na trilha */}
         {[
-          [30,20],[60,10],[100,25],[150,8],[200,18],[700,15],[750,8],
-          [800,20],[850,10],[900,25],[950,12]
-        ].map(([sx,sy],i) => (
-          <circle key={i} cx={sx} cy={sy} r="1.5" fill="#ffeb3b" opacity="0.7"/>
+          [240,188],[350,155],[450,125],[560,96],[670,72],[780,52]
+        ].map(([px,py],i) => (
+          <g key={i}>
+            <circle cx={px+15} cy={py-15} r="2" fill="#E91E8C" opacity="0.6"/>
+            <circle cx={px-10} cy={py-25} r="1.5" fill="#C026D3" opacity="0.5"/>
+            <circle cx={px+25} cy={py-8} r="1" fill="#fff" opacity="0.4"/>
+          </g>
         ))}
       </svg>
     </div>
@@ -189,10 +280,8 @@ const styles = {
     width: '100%',
     borderRadius: '20px',
     overflow: 'hidden',
-    border: '2px solid rgba(255,255,255,0.15)',
-    boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+    border: '1px solid rgba(139,47,201,0.3)',
+    boxShadow: '0 0 40px rgba(139,47,201,0.2), 0 8px 32px rgba(0,0,0,0.6)',
   },
-  svg: {
-    display: 'block',
-  },
+  svg: { display: 'block' },
 };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { ref, set, onValue, remove } from 'firebase/database';
+import LogoEpic from '../components/LogoEpic';
 
 const PERGUNTAS_VAZIAS = Array(5).fill(null).map(() => ({
   pergunta: '',
@@ -31,26 +32,24 @@ export default function Professor() {
   const acertaram = lista.filter(a => a.acertou).length;
 
   function atualizarPergunta(i, campo, valor) {
-    const novas = perguntas.map((p, idx) =>
+    setPerguntas(perguntas.map((p, idx) =>
       idx === i ? { ...p, [campo]: valor } : p
-    );
-    setPerguntas(novas);
+    ));
   }
 
   function atualizarOpcao(pi, oi, valor) {
-    const novas = perguntas.map((p, idx) => {
+    setPerguntas(perguntas.map((p, idx) => {
       if (idx !== pi) return p;
       const opcoes = [...p.opcoes];
       opcoes[oi] = valor;
       return { ...p, opcoes };
-    });
-    setPerguntas(novas);
+    }));
   }
 
   async function salvarPerguntas() {
     setSalvando(true);
     await set(ref(db, 'sala/perguntas'), perguntas);
-    setTimeout(() => setSalvando(false), 1200);
+    setTimeout(() => setSalvando(false), 1500);
   }
 
   async function lancarPergunta(i) {
@@ -72,7 +71,6 @@ export default function Professor() {
       timestamp: Date.now(),
     });
     await set(ref(db, 'sala/pergunta_atual'), i);
-    // Reseta respostas dos alunos
     Object.keys(alunos).forEach(id => {
       set(ref(db, `sala/alunos/${id}/respondeu`), false);
       set(ref(db, `sala/alunos/${id}/acertou`), false);
@@ -86,41 +84,58 @@ export default function Professor() {
     setPerguntaAtual(-1);
   }
 
+  const CHECKPOINT_EMOJIS = ['🚩','🌳','🌋','🏖️','🪨','🏆'];
+
   return (
     <div style={styles.container}>
+      {/* Partículas de fundo */}
+      <div style={styles.bgParticles}>
+        {[...Array(20)].map((_, i) => (
+          <div key={i} style={{
+            ...styles.particle,
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            width: `${2 + Math.random() * 3}px`,
+            height: `${2 + Math.random() * 3}px`,
+            animationDelay: `${Math.random() * 4}s`,
+            animationDuration: `${3 + Math.random() * 4}s`,
+          }}/>
+        ))}
+      </div>
+
       {/* Header */}
       <div style={styles.header}>
-        <div style={styles.logo}>
-            <span style={styles.logoInstituto}>INSTITUTO</span>
-          <span style={styles.logoEpic}>EPIC</span>
-          
+        <LogoEpic size="md"/>
+        <div style={styles.headerCenter}>
+          <h1 style={styles.titulo}>Painel do Professor</h1>
+          <p style={styles.subtitulo}>🌴 Ilha do Saber</p>
         </div>
-        <h1 style={styles.titulo}>Painel do Professor</h1>
-        <div style={styles.stats}>
-          <div style={styles.statCard}>
-            <span style={styles.statNum}>{lista.length}</span>
-            <span style={styles.statLabel}>alunos</span>
-          </div>
-          <div style={styles.statCard}>
-            <span style={styles.statNum}>{responderam}</span>
-            <span style={styles.statLabel}>responderam</span>
-          </div>
-          <div style={styles.statCard}>
-            <span style={{ ...styles.statNum, color: '#4caf50' }}>{acertaram}</span>
-            <span style={styles.statLabel}>acertaram</span>
-          </div>
+        <div style={styles.statsRow}>
+          {[
+            { num: lista.length, label: 'jogadores', color: '#C026D3' },
+            { num: responderam, label: 'responderam', color: '#8B2FC9' },
+            { num: acertaram, label: 'acertaram', color: '#4caf50' },
+          ].map((s, i) => (
+            <div key={i} style={styles.statCard}>
+              <span style={{ ...styles.statNum, color: s.color }}>{s.num}</span>
+              <span style={styles.statLabel}>{s.label}</span>
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Abas */}
       <div style={styles.abas}>
-        {['perguntas', 'alunos'].map(a => (
+        {[
+          { id: 'perguntas', label: '📝 Perguntas' },
+          { id: 'alunos', label: '👥 Alunos' },
+        ].map(a => (
           <button
-            key={a}
-            style={{ ...styles.aba, ...(aba === a ? styles.abaAtiva : {}) }}
-            onClick={() => setAba(a)}
+            key={a.id}
+            style={{ ...styles.aba, ...(aba === a.id ? styles.abaAtiva : {}) }}
+            onClick={() => setAba(a.id)}
           >
-            {a === 'perguntas' ? '📝 Perguntas' : '👥 Alunos'}
+            {a.label}
           </button>
         ))}
       </div>
@@ -128,61 +143,95 @@ export default function Professor() {
       {/* Aba Perguntas */}
       {aba === 'perguntas' && (
         <div style={styles.conteudo}>
-          {perguntas.map((p, i) => (
-            <div key={i} style={{
-              ...styles.card,
-              borderLeft: perguntaAtual === i
-                ? '4px solid #f0c040'
-                : '4px solid rgba(255,255,255,0.1)',
-            }}>
-              <div style={styles.cardHeader}>
-                <span style={styles.cardNumero}>Pergunta {i + 1}</span>
-                {perguntaAtual === i && (
-                  <span style={styles.badge}>● AO VIVO</span>
-                )}
-              </div>
-              <input
-                style={styles.input}
-                placeholder={`Digite a pergunta ${i + 1}...`}
-                value={p.pergunta}
-                onChange={e => atualizarPergunta(i, 'pergunta', e.target.value)}
-              />
-              <div style={styles.opcoesGrid}>
-                {p.opcoes.map((op, j) => (
-                  <input
-                    key={j}
-                    style={styles.inputOpcao}
-                    placeholder={`Opção ${j + 1}`}
-                    value={op}
-                    onChange={e => atualizarOpcao(i, j, e.target.value)}
-                  />
-                ))}
-              </div>
-              <input
-                style={{ ...styles.input, borderColor: '#4caf50', marginBottom: '12px' }}
-                placeholder="✅ Resposta certa (igual a uma das opções)"
-                value={p.resposta_certa}
-                onChange={e => atualizarPergunta(i, 'resposta_certa', e.target.value)}
-              />
-              <button
-                style={{
-                  ...styles.botaoLancar,
-                  background: perguntaAtual === i
-                    ? 'rgba(240,192,64,0.2)'
-                    : '#f0c040',
-                  color: perguntaAtual === i ? '#f0c040' : '#1a1a2e',
-                  border: perguntaAtual === i ? '2px solid #f0c040' : 'none',
-                }}
-                onClick={() => lancarPergunta(i)}
-              >
-                {perguntaAtual === i ? '🔄 Relançar' : '🚀 Lançar pergunta'}
-              </button>
-            </div>
-          ))}
+          <div style={styles.perguntasGrid}>
+            {perguntas.map((p, i) => (
+              <div key={i} style={{
+                ...styles.card,
+                borderTop: perguntaAtual === i
+                  ? '3px solid #E91E8C'
+                  : '3px solid rgba(139,47,201,0.3)',
+                boxShadow: perguntaAtual === i
+                  ? '0 0 20px rgba(233,30,140,0.2)'
+                  : 'none',
+              }}>
+                {/* Header do card */}
+                <div style={styles.cardHeader}>
+                  <div style={styles.cardNumeroWrap}>
+                    <span style={styles.cardEmoji}>{CHECKPOINT_EMOJIS[i + 1]}</span>
+                    <span style={styles.cardNumero}>Pergunta {i + 1}</span>
+                  </div>
+                  {perguntaAtual === i && (
+                    <span style={styles.badgeAoVivo}>● AO VIVO</span>
+                  )}
+                  {perguntaAtual > i && (
+                    <span style={styles.badgeConcluida}>✅ Concluída</span>
+                  )}
+                </div>
 
-          <div style={styles.botoesRodape}>
+                {/* Input pergunta */}
+                <textarea
+                  style={styles.textarea}
+                  placeholder={`Digite a pergunta ${i + 1}...`}
+                  value={p.pergunta}
+                  onChange={e => atualizarPergunta(i, 'pergunta', e.target.value)}
+                  rows={2}
+                />
+
+                {/* Opções */}
+                <div style={styles.opcoesGrid}>
+                  {p.opcoes.map((op, j) => (
+                    <div key={j} style={styles.opcaoWrap}>
+                      <span style={styles.opcaoLetra}>
+                        {['A','B','C','D'][j]}
+                      </span>
+                      <input
+                        style={styles.inputOpcao}
+                        placeholder={`Opção ${['A','B','C','D'][j]}`}
+                        value={op}
+                        onChange={e => atualizarOpcao(i, j, e.target.value)}
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Resposta certa */}
+                <div style={styles.respostaWrap}>
+                  <span style={styles.respostaLabel}>✅ Resposta certa:</span>
+                  <input
+                    style={styles.inputResposta}
+                    placeholder="Deve ser igual a uma das opções acima"
+                    value={p.resposta_certa}
+                    onChange={e => atualizarPergunta(i, 'resposta_certa', e.target.value)}
+                  />
+                </div>
+
+                {/* Botão lançar */}
+                <button
+                  style={{
+                    ...styles.botaoLancar,
+                    background: perguntaAtual === i
+                      ? 'transparent'
+                      : 'linear-gradient(135deg, #E91E8C, #C026D3)',
+                    border: perguntaAtual === i
+                      ? '2px solid #E91E8C'
+                      : 'none',
+                    color: 'white',
+                    boxShadow: perguntaAtual === i
+                      ? '0 0 15px rgba(233,30,140,0.3)'
+                      : '0 4px 15px rgba(233,30,140,0.4)',
+                  }}
+                  onClick={() => lancarPergunta(i)}
+                >
+                  {perguntaAtual === i ? '🔄 Relançar pergunta' : '🚀 Lançar pergunta'}
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* Botões rodapé */}
+          <div style={styles.rodape}>
             <button style={styles.botaoSalvar} onClick={salvarPerguntas}>
-              {salvando ? '✅ Salvo!' : '💾 Salvar perguntas'}
+              {salvando ? '✅ Salvo com sucesso!' : '💾 Salvar todas as perguntas'}
             </button>
             <button style={styles.botaoEncerrar} onClick={encerrarJogo}>
               🗑️ Encerrar jogo
@@ -194,37 +243,42 @@ export default function Professor() {
       {/* Aba Alunos */}
       {aba === 'alunos' && (
         <div style={styles.conteudo}>
-          <div style={styles.alunosGrid}>
-            {lista.map((aluno, i) => (
-              <div key={i} style={{
-                ...styles.alunoCard,
-                background: aluno.respondeu
-                  ? aluno.acertou
-                    ? 'rgba(76,175,80,0.2)'
-                    : 'rgba(244,67,54,0.2)'
-                  : 'rgba(255,255,255,0.05)',
-                border: aluno.respondeu
-                  ? aluno.acertou
-                    ? '1px solid #4caf50'
-                    : '1px solid #f44336'
-                  : '1px solid rgba(255,255,255,0.1)',
-              }}>
-                <span style={styles.alunoAvatar}>{aluno.avatar}</span>
-                <span style={styles.alunoNome}>{aluno.nome}</span>
-                <span style={styles.alunoStatus}>
-                  {aluno.respondeu
-                    ? aluno.acertou ? '✅' : '❌'
-                    : '⏳'}
-                </span>
-                <span style={styles.alunoCheckpoint}>
-                  CP {aluno.checkpoint || 0}
-                </span>
-              </div>
-            ))}
-            {lista.length === 0 && (
-              <p style={styles.vazio}>Nenhum aluno conectado ainda.</p>
-            )}
-          </div>
+          {lista.length === 0 ? (
+            <div style={styles.vazioWrap}>
+              <span style={styles.vazioEmoji}>⏳</span>
+              <p style={styles.vazioTexto}>Nenhum aluno conectado ainda.</p>
+              <p style={styles.vazioSub}>Os alunos devem acessar o link e entrar na sala.</p>
+            </div>
+          ) : (
+            <div style={styles.alunosGrid}>
+              {lista.map((aluno, i) => (
+                <div key={i} style={{
+                  ...styles.alunoCard,
+                  background: aluno.respondeu
+                    ? aluno.acertou
+                      ? 'rgba(76,175,80,0.15)'
+                      : 'rgba(244,67,54,0.15)'
+                    : 'rgba(255,255,255,0.04)',
+                  border: aluno.respondeu
+                    ? aluno.acertou
+                      ? '1px solid rgba(76,175,80,0.5)'
+                      : '1px solid rgba(244,67,54,0.5)'
+                    : '1px solid rgba(255,255,255,0.08)',
+                }}>
+                  <div style={styles.alunoAvatarWrap}>
+                    <span style={styles.alunoAvatar}>{aluno.avatar}</span>
+                    <span style={styles.alunoStatus}>
+                      {aluno.respondeu ? (aluno.acertou ? '✅' : '❌') : '⏳'}
+                    </span>
+                  </div>
+                  <span style={styles.alunoNome}>{aluno.nome}</span>
+                  <div style={styles.alunoCpWrap}>
+                    <span style={styles.alunoCp}>CP {aluno.checkpoint || 0}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -234,149 +288,227 @@ export default function Professor() {
 const styles = {
   container: {
     minHeight: '100vh',
-    background: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)',
+    background: 'linear-gradient(135deg, #0a0010, #120020, #0a0818)',
     fontFamily: "'Segoe UI', Arial, sans-serif",
     color: 'white',
+    position: 'relative',
+    overflow: 'hidden',
     paddingBottom: '40px',
   },
+  bgParticles: {
+    position: 'fixed',
+    inset: 0,
+    pointerEvents: 'none',
+    zIndex: 0,
+  },
+  particle: {
+    position: 'absolute',
+    borderRadius: '50%',
+    background: 'rgba(192,38,211,0.6)',
+    animation: 'pulse 3s ease-in-out infinite',
+  },
   header: {
-    background: 'rgba(0,0,0,0.3)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     padding: '20px 30px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '20px',
+    background: 'rgba(0,0,0,0.4)',
+    borderBottom: '1px solid rgba(139,47,201,0.3)',
+    backdropFilter: 'blur(20px)',
+    position: 'relative',
+    zIndex: 1,
     flexWrap: 'wrap',
-    borderBottom: '1px solid rgba(255,255,255,0.1)',
+    gap: '16px',
   },
-  logo: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    background: 'rgba(240,192,64,0.15)',
-    border: '1px solid #f0c040',
-    borderRadius: '10px',
-    padding: '6px 14px',
-  },
-  logoEpic: {
-    fontSize: '1.4rem',
-    fontWeight: '900',
-    color: '#f0c040',
-    letterSpacing: '3px',
-  },
-  logoInstituto: {
-    fontSize: '0.55rem',
-    color: 'rgba(240,192,64,0.7)',
-    letterSpacing: '2px',
-  },
+  headerCenter: { textAlign: 'center', flex: 1 },
   titulo: {
-    fontSize: '1.4rem',
-    fontWeight: '600',
-    flex: 1,
+    fontSize: '1.5rem',
+    fontWeight: '700',
+    background: 'linear-gradient(135deg, #fff, rgba(255,255,255,0.7))',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
+    margin: 0,
   },
-  stats: { display: 'flex', gap: '12px' },
+  subtitulo: {
+    fontSize: '0.8rem',
+    color: 'rgba(192,38,211,0.7)',
+    margin: '4px 0 0',
+  },
+  statsRow: { display: 'flex', gap: '10px' },
   statCard: {
-    background: 'rgba(255,255,255,0.07)',
-    borderRadius: '10px',
-    padding: '8px 16px',
+    background: 'rgba(139,47,201,0.1)',
+    border: '1px solid rgba(139,47,201,0.2)',
+    borderRadius: '12px',
+    padding: '10px 18px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    gap: '2px',
   },
-  statNum: { fontSize: '1.4rem', fontWeight: 'bold', color: '#f0c040' },
-  statLabel: { fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase' },
+  statNum: { fontSize: '1.6rem', fontWeight: '900', lineHeight: 1 },
+  statLabel: { fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1px' },
   abas: {
     display: 'flex',
     gap: '4px',
     padding: '16px 30px 0',
+    position: 'relative',
+    zIndex: 1,
   },
   aba: {
-    padding: '10px 24px',
-    borderRadius: '10px 10px 0 0',
-    border: 'none',
-    background: 'rgba(255,255,255,0.05)',
-    color: 'rgba(255,255,255,0.5)',
+    padding: '10px 28px',
+    borderRadius: '12px 12px 0 0',
+    border: '1px solid rgba(139,47,201,0.2)',
+    borderBottom: 'none',
+    background: 'rgba(255,255,255,0.03)',
+    color: 'rgba(255,255,255,0.4)',
     cursor: 'pointer',
     fontSize: '0.9rem',
+    fontFamily: "'Segoe UI', Arial, sans-serif",
   },
   abaAtiva: {
-    background: 'rgba(240,192,64,0.15)',
-    color: '#f0c040',
-    borderBottom: '2px solid #f0c040',
+    background: 'rgba(139,47,201,0.15)',
+    color: '#C026D3',
+    borderColor: 'rgba(139,47,201,0.4)',
   },
   conteudo: {
-    padding: '20px 30px',
-    maxWidth: '800px',
+    padding: '24px 30px',
+    position: 'relative',
+    zIndex: 1,
+    maxWidth: '1100px',
     margin: '0 auto',
   },
+  perguntasGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+    gap: '16px',
+    marginBottom: '20px',
+  },
   card: {
-    background: 'rgba(255,255,255,0.05)',
-    borderRadius: '14px',
+    background: 'rgba(255,255,255,0.04)',
+    borderRadius: '16px',
     padding: '20px',
-    marginBottom: '16px',
-    border: '1px solid rgba(255,255,255,0.08)',
+    border: '1px solid rgba(139,47,201,0.2)',
+    backdropFilter: 'blur(10px)',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
   },
   cardHeader: {
     display: 'flex',
     alignItems: 'center',
-    gap: '10px',
-    marginBottom: '12px',
+    justifyContent: 'space-between',
   },
+  cardNumeroWrap: { display: 'flex', alignItems: 'center', gap: '8px' },
+  cardEmoji: { fontSize: '1.4rem' },
   cardNumero: {
-    fontSize: '0.9rem',
-    fontWeight: 'bold',
-    color: '#f0c040',
+    fontSize: '0.85rem',
+    fontWeight: '700',
+    color: '#C026D3',
     textTransform: 'uppercase',
     letterSpacing: '1px',
   },
-  badge: {
-    fontSize: '0.7rem',
-    background: 'rgba(240,192,64,0.2)',
-    color: '#f0c040',
-    padding: '2px 8px',
+  badgeAoVivo: {
+    fontSize: '0.65rem',
+    background: 'rgba(233,30,140,0.2)',
+    color: '#E91E8C',
+    padding: '3px 10px',
     borderRadius: '20px',
-    border: '1px solid #f0c040',
-    animation: 'pulse 1.5s infinite',
+    border: '1px solid rgba(233,30,140,0.5)',
+    animation: 'blink 1.5s infinite',
   },
-  input: {
-    display: 'block',
+  badgeConcluida: {
+    fontSize: '0.65rem',
+    background: 'rgba(76,175,80,0.15)',
+    color: '#4caf50',
+    padding: '3px 10px',
+    borderRadius: '20px',
+    border: '1px solid rgba(76,175,80,0.3)',
+  },
+  textarea: {
     width: '100%',
     padding: '10px 14px',
-    marginBottom: '10px',
     borderRadius: '10px',
-    border: '1px solid rgba(255,255,255,0.15)',
-    background: 'rgba(255,255,255,0.07)',
+    border: '1px solid rgba(139,47,201,0.2)',
+    background: 'rgba(255,255,255,0.05)',
     color: 'white',
-    fontSize: '0.95rem',
+    fontSize: '0.9rem',
+    resize: 'none',
     outline: 'none',
+    fontFamily: "'Segoe UI', Arial, sans-serif",
     boxSizing: 'border-box',
+    lineHeight: '1.5',
   },
   opcoesGrid: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
     gap: '8px',
-    marginBottom: '10px',
+  },
+  opcaoWrap: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    background: 'rgba(255,255,255,0.03)',
+    borderRadius: '10px',
+    padding: '4px 10px 4px 6px',
+    border: '1px solid rgba(255,255,255,0.06)',
+  },
+  opcaoLetra: {
+    width: '22px',
+    height: '22px',
+    borderRadius: '50%',
+    background: 'rgba(139,47,201,0.3)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '0.7rem',
+    fontWeight: 'bold',
+    color: '#C026D3',
+    flexShrink: 0,
   },
   inputOpcao: {
+    flex: 1,
+    padding: '8px 4px',
+    border: 'none',
+    background: 'transparent',
+    color: 'white',
+    fontSize: '0.85rem',
+    outline: 'none',
+    fontFamily: "'Segoe UI', Arial, sans-serif",
+  },
+  respostaWrap: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px',
+  },
+  respostaLabel: {
+    fontSize: '0.75rem',
+    color: 'rgba(76,175,80,0.8)',
+    fontWeight: '600',
+  },
+  inputResposta: {
+    width: '100%',
     padding: '10px 14px',
     borderRadius: '10px',
-    border: '1px solid rgba(255,255,255,0.15)',
-    background: 'rgba(255,255,255,0.07)',
+    border: '1px solid rgba(76,175,80,0.3)',
+    background: 'rgba(76,175,80,0.05)',
     color: 'white',
-    fontSize: '0.9rem',
+    fontSize: '0.85rem',
     outline: 'none',
+    fontFamily: "'Segoe UI', Arial, sans-serif",
     boxSizing: 'border-box',
   },
   botaoLancar: {
     width: '100%',
     padding: '12px',
-    borderRadius: '10px',
-    border: 'none',
+    borderRadius: '12px',
     fontSize: '0.95rem',
-    fontWeight: 'bold',
+    fontWeight: '700',
     cursor: 'pointer',
-    transition: 'opacity 0.2s',
+    fontFamily: "'Segoe UI', Arial, sans-serif",
+    letterSpacing: '0.5px',
   },
-  botoesRodape: {
+  rodape: {
     display: 'flex',
     gap: '12px',
     marginTop: '8px',
@@ -384,50 +516,57 @@ const styles = {
   botaoSalvar: {
     flex: 1,
     padding: '14px',
-    background: 'rgba(76,175,80,0.2)',
+    background: 'rgba(76,175,80,0.15)',
     color: '#4caf50',
-    border: '1px solid #4caf50',
-    borderRadius: '10px',
+    border: '1px solid rgba(76,175,80,0.4)',
+    borderRadius: '12px',
     fontSize: '1rem',
-    fontWeight: 'bold',
+    fontWeight: '700',
     cursor: 'pointer',
+    fontFamily: "'Segoe UI', Arial, sans-serif",
   },
   botaoEncerrar: {
     padding: '14px 24px',
-    background: 'rgba(244,67,54,0.15)',
+    background: 'rgba(244,67,54,0.1)',
     color: '#f44336',
-    border: '1px solid #f44336',
-    borderRadius: '10px',
-    fontSize: '1rem',
+    border: '1px solid rgba(244,67,54,0.3)',
+    borderRadius: '12px',
+    fontSize: '0.9rem',
     cursor: 'pointer',
+    fontFamily: "'Segoe UI', Arial, sans-serif",
   },
   alunosGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
     gap: '10px',
   },
   alunoCard: {
-    borderRadius: '12px',
-    padding: '12px',
+    borderRadius: '14px',
+    padding: '16px 12px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '4px',
+    gap: '6px',
+    backdropFilter: 'blur(10px)',
   },
-  alunoAvatar: { fontSize: '2rem' },
-  alunoNome: { fontSize: '0.8rem', color: 'white', textAlign: 'center' },
-  alunoStatus: { fontSize: '1.2rem' },
-  alunoCheckpoint: {
-    fontSize: '0.7rem',
-    color: '#f0c040',
-    background: 'rgba(240,192,64,0.1)',
-    padding: '2px 8px',
-    borderRadius: '10px',
+  alunoAvatarWrap: { position: 'relative' },
+  alunoAvatar: { fontSize: '2.2rem' },
+  alunoStatus: { position: 'absolute', top: -4, right: -8, fontSize: '0.9rem' },
+  alunoNome: { fontSize: '0.8rem', color: 'white', textAlign: 'center', fontWeight: '500' },
+  alunoCpWrap: {
+    background: 'rgba(139,47,201,0.2)',
+    borderRadius: '20px',
+    padding: '2px 10px',
   },
-  vazio: {
-    color: 'rgba(255,255,255,0.3)',
-    textAlign: 'center',
-    padding: '40px',
-    gridColumn: '1/-1',
+  alunoCp: { fontSize: '0.7rem', color: '#C026D3', fontWeight: '700' },
+  vazioWrap: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    padding: '60px 20px',
+    gap: '12px',
   },
+  vazioEmoji: { fontSize: '3rem' },
+  vazioTexto: { fontSize: '1.1rem', color: 'rgba(255,255,255,0.5)' },
+  vazioSub: { fontSize: '0.85rem', color: 'rgba(255,255,255,0.25)', textAlign: 'center' },
 };

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { ref, set, onValue, push } from 'firebase/database';
+import LogoEpic from '../components/LogoEpic';
 
-const AVATARES = ['🧑‍🚀', '🧜', '🧙', '🦸', '🧝', '🥷', '🧞', '🦄'];
+const AVATARES = ['🧑‍🚀','🧜','🧙','🦸','🧝','🥷','🧞','🦄'];
+const CORES = ['#E91E8C','#C026D3','#8B2FC9','#3f51b5','#00897b','#f57f17','#c62828','#2e7d32'];
 
 export default function Aluno() {
   const [nome, setNome] = useState('');
@@ -15,14 +17,15 @@ export default function Aluno() {
   const [checkpoint, setCheckpoint] = useState(0);
   const [posicao, setPosicao] = useState(null);
   const [totalAlunos, setTotalAlunos] = useState(0);
+  const [opcaoSelecionada, setOpcaoSelecionada] = useState(null);
 
   useEffect(() => {
     if (!alunoId) return;
     onValue(ref(db, 'sala/missao_atual'), snap => {
-      const data = snap.val();
-      setMissao(data);
+      setMissao(snap.val());
       setRespondeu(false);
       setResultado(null);
+      setOpcaoSelecionada(null);
     });
     onValue(ref(db, 'sala/alunos'), snap => {
       const data = snap.val() || {};
@@ -30,12 +33,10 @@ export default function Aluno() {
         (a, b) => (b.checkpoint || 0) - (a.checkpoint || 0)
       );
       setTotalAlunos(lista.length);
-      const pos = lista.findIndex(
-        a => a.nome === nome && a.avatar === AVATARES[avatarIndex]
-      );
+      const pos = lista.findIndex(a => a.nome === nome);
       setPosicao(pos + 1);
     });
-  }, [alunoId, nome, avatarIndex]);
+  }, [alunoId, nome]);
 
   function entrarNaSala() {
     if (!nome.trim()) return;
@@ -55,8 +56,9 @@ export default function Aluno() {
 
   async function responder(opcao) {
     if (respondeu || !alunoId) return;
+    setOpcaoSelecionada(opcao);
     const acertou = opcao === missao.resposta_certa;
-    const novoCheckpoint = acertou ? (checkpoint + 1) : checkpoint;
+    const novoCheckpoint = acertou ? checkpoint + 1 : checkpoint;
     await set(ref(db, `sala/alunos/${alunoId}`), {
       nome: nome.trim(),
       avatar: AVATARES[avatarIndex],
@@ -70,19 +72,18 @@ export default function Aluno() {
     if (acertou) setCheckpoint(novoCheckpoint);
   }
 
+  const medalha = posicao === 1 ? '🥇' : posicao === 2 ? '🥈' : posicao === 3 ? '🥉' : null;
+
   // TELA DE ENTRADA
   if (!entrou) {
     return (
       <div style={styles.container}>
-        <div style={styles.bgCircle1}/>
-        <div style={styles.bgCircle2}/>
+        <Particles/>
         <div style={styles.loginBox}>
-          <div style={styles.logo}>
-            <span style={styles.logoEpic}>EPIC</span>
-            <span style={styles.logoInstituto}>INSTITUTO</span>
-          </div>
+          <LogoEpic size="lg"/>
           <h1 style={styles.tituloJogo}>🌴 Ilha do Saber</h1>
-          <p style={styles.subtitulo}>Escolha seu explorador</p>
+          <p style={styles.subtitulo}>Escolha seu explorador e embarque na aventura!</p>
+
           <div style={styles.avatarGrid}>
             {AVATARES.map((av, i) => (
               <button
@@ -91,76 +92,132 @@ export default function Aluno() {
                 style={{
                   ...styles.avatarBtn,
                   background: i === avatarIndex
-                    ? 'rgba(240,192,64,0.3)'
-                    : 'rgba(255,255,255,0.05)',
+                    ? `rgba(${hexToRgb(CORES[i])}, 0.3)`
+                    : 'rgba(255,255,255,0.04)',
                   border: i === avatarIndex
-                    ? '2px solid #f0c040'
-                    : '2px solid rgba(255,255,255,0.1)',
-                  transform: i === avatarIndex ? 'scale(1.1)' : 'scale(1)',
+                    ? `2px solid ${CORES[i]}`
+                    : '2px solid rgba(255,255,255,0.08)',
+                  boxShadow: i === avatarIndex
+                    ? `0 0 20px ${CORES[i]}66`
+                    : 'none',
+                  transform: i === avatarIndex ? 'scale(1.15)' : 'scale(1)',
                 }}
               >
-                {av}
+                <span style={styles.avatarEmoji}>{av}</span>
+                {i === avatarIndex && (
+                  <div style={{ ...styles.avatarCheck, background: CORES[i] }}>✓</div>
+                )}
               </button>
             ))}
           </div>
-          <input
-            style={styles.input}
-            placeholder="Seu nome completo"
-            value={nome}
-            onChange={e => setNome(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && entrarNaSala()}
-            maxLength={20}
-          />
+
+          <div style={styles.inputWrap}>
+            <span style={styles.inputIcon}>🧭</span>
+            <input
+              style={styles.input}
+              placeholder="Seu nome completo"
+              value={nome}
+              onChange={e => setNome(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && entrarNaSala()}
+              maxLength={20}
+            />
+          </div>
+
           <button
             style={{
               ...styles.botaoEntrar,
-              opacity: nome.trim() ? 1 : 0.5,
+              opacity: nome.trim() ? 1 : 0.4,
+              cursor: nome.trim() ? 'pointer' : 'not-allowed',
             }}
             onClick={entrarNaSala}
+            disabled={!nome.trim()}
           >
-            Entrar na Missão 🚀
+            <span>Embarcar na Missão</span>
+            <span style={styles.botaoIcon}>🚀</span>
           </button>
+
+          <p style={styles.disclaimer}>
+            Você está prestes a explorar a Ilha do Saber!
+          </p>
         </div>
       </div>
     );
   }
 
-  // AGUARDANDO MISSÃO
+  // AGUARDANDO
   if (!missao) {
     return (
       <div style={styles.container}>
-        <div style={styles.bgCircle1}/>
-        <div style={styles.bgCircle2}/>
+        <Particles/>
         <div style={styles.aguardandoBox}>
-          <div style={styles.avatarGrande}>{AVATARES[avatarIndex]}</div>
+          <LogoEpic size="sm"/>
+
+          <div style={styles.avatarGrandeWrap}>
+            <div style={{
+              ...styles.avatarGrandeBg,
+              background: `radial-gradient(circle, ${CORES[avatarIndex]}44, transparent)`,
+              boxShadow: `0 0 40px ${CORES[avatarIndex]}66`,
+            }}/>
+            <span style={styles.avatarGrande}>{AVATARES[avatarIndex]}</span>
+          </div>
+
           <h2 style={styles.nomeAluno}>{nome}</h2>
-          <div style={styles.checkpointBadge}>
-            Checkpoint {checkpoint} / 5
-          </div>
-          {posicao && (
-            <div style={styles.posicaoBadge}>
-              {posicao === 1 ? '🥇' : posicao === 2 ? '🥈' : posicao === 3 ? '🥉' : `${posicao}º`} lugar de {totalAlunos}
+
+          <div style={styles.badgesRow}>
+            <div style={styles.checkpointBadge}>
+              <span style={styles.cpNum}>{checkpoint}</span>
+              <span style={styles.cpSlash}>/</span>
+              <span style={styles.cpTotal}>5</span>
+              <span style={styles.cpLabel}>checkpoints</span>
             </div>
-          )}
-          <div style={styles.aguardandoCard}>
-            <div style={styles.loadingDots}>
-              <span style={{ ...styles.dot, animationDelay: '0s' }}/>
-              <span style={{ ...styles.dot, animationDelay: '0.2s' }}/>
-              <span style={{ ...styles.dot, animationDelay: '0.4s' }}/>
-            </div>
-            <p style={styles.aguardandoTexto}>
-              Aguardando o professor...
-            </p>
+            {posicao && (
+              <div style={styles.posicaoBadge}>
+                {medalha || `${posicao}º`} de {totalAlunos}
+              </div>
+            )}
           </div>
-          <div style={styles.trilhaMini}>
-            {[0,1,2,3,4,5].map(i => (
-              <div key={i} style={{
-                ...styles.cpMini,
-                background: i <= checkpoint
-                  ? '#f0c040'
-                  : 'rgba(255,255,255,0.1)',
-              }}/>
+
+          {/* Trilha mini */}
+          <div style={styles.trilhaMiniWrap}>
+            {['🚩','🌳','🌋','🏖️','🪨','🏆'].map((emoji, i) => (
+              <React.Fragment key={i}>
+                <div style={{
+                  ...styles.cpMiniItem,
+                  background: i <= checkpoint
+                    ? `linear-gradient(135deg, #E91E8C, #8B2FC9)`
+                    : 'rgba(255,255,255,0.06)',
+                  border: i === checkpoint
+                    ? '2px solid #E91E8C'
+                    : '1px solid rgba(255,255,255,0.1)',
+                  boxShadow: i <= checkpoint
+                    ? '0 0 12px rgba(233,30,140,0.4)'
+                    : 'none',
+                }}>
+                  {emoji}
+                </div>
+                {i < 5 && (
+                  <div style={{
+                    ...styles.cpConector,
+                    background: i < checkpoint
+                      ? 'linear-gradient(90deg, #E91E8C, #C026D3)'
+                      : 'rgba(255,255,255,0.08)',
+                  }}/>
+                )}
+              </React.Fragment>
             ))}
+          </div>
+
+          <div style={styles.aguardandoCard}>
+            <div style={styles.loadingWrap}>
+              {[0,1,2].map(i => (
+                <div key={i} style={{
+                  ...styles.dot,
+                  animationDelay: `${i * 0.2}s`,
+                  background: ['#E91E8C','#C026D3','#8B2FC9'][i],
+                }}/>
+              ))}
+            </div>
+            <p style={styles.aguardandoTexto}>Aguardando o professor...</p>
           </div>
         </div>
       </div>
@@ -170,90 +227,138 @@ export default function Aluno() {
   // TELA DA PERGUNTA
   return (
     <div style={styles.container}>
-      <div style={styles.bgCircle1}/>
-      <div style={styles.bgCircle2}/>
+      <Particles/>
       <div style={styles.jogoBox}>
-        {/* Header do aluno */}
+
+        {/* Header */}
         <div style={styles.jogoHeader}>
-          <span style={styles.avatarPequeno}>{AVATARES[avatarIndex]}</span>
-          <div>
-            <p style={styles.jogoNome}>{nome}</p>
-            <p style={styles.jogoCp}>Checkpoint {checkpoint}/5</p>
+          <div style={styles.jogoAvatarWrap}>
+            <div style={{
+              ...styles.jogoAvatarCircle,
+              background: CORES[avatarIndex],
+              boxShadow: `0 0 15px ${CORES[avatarIndex]}88`,
+            }}>
+              {AVATARES[avatarIndex]}
+            </div>
+            <div>
+              <p style={styles.jogoNome}>{nome}</p>
+              <p style={styles.jogoCp}>CP {checkpoint}/5</p>
+            </div>
           </div>
           {posicao && (
-            <div style={styles.posicaoMini}>
-              {posicao === 1 ? '🥇' : posicao === 2 ? '🥈' : posicao === 3 ? '🥉' : `${posicao}º`}
+            <div style={styles.posicaoWrap}>
+              <span style={styles.posicaoEmoji}>{medalha || `${posicao}º`}</span>
+              <span style={styles.posicaoLabel}>lugar</span>
             </div>
           )}
         </div>
 
         {/* Trilha mini */}
-        <div style={styles.trilhaMini}>
+        <div style={styles.trilhaMiniWrap}>
           {['🚩','🌳','🌋','🏖️','🪨','🏆'].map((emoji, i) => (
-            <div key={i} style={{
-              ...styles.cpMiniEmoji,
-              background: i <= checkpoint
-                ? 'rgba(240,192,64,0.3)'
-                : 'rgba(255,255,255,0.05)',
-              border: i === checkpoint
-                ? '2px solid #f0c040'
-                : '1px solid rgba(255,255,255,0.1)',
-            }}>
-              {emoji}
-            </div>
+            <React.Fragment key={i}>
+              <div style={{
+                ...styles.cpMiniItem,
+                background: i <= checkpoint
+                  ? 'linear-gradient(135deg, #E91E8C, #8B2FC9)'
+                  : 'rgba(255,255,255,0.06)',
+                border: i === checkpoint + (respondeu && resultado ? 0 : 0)
+                  ? '2px solid #E91E8C'
+                  : '1px solid rgba(255,255,255,0.1)',
+                transform: i === missao.index + 1 ? 'scale(1.2)' : 'scale(1)',
+                boxShadow: i === missao.index + 1
+                  ? '0 0 16px rgba(233,30,140,0.6)'
+                  : 'none',
+              }}>
+                {emoji}
+              </div>
+              {i < 5 && (
+                <div style={{
+                  ...styles.cpConector,
+                  background: i < checkpoint
+                    ? 'linear-gradient(90deg, #E91E8C, #C026D3)'
+                    : 'rgba(255,255,255,0.08)',
+                }}/>
+              )}
+            </React.Fragment>
           ))}
         </div>
 
         {/* Pergunta */}
         <div style={styles.perguntaCard}>
-          <div style={styles.perguntaNumero}>
-            Pergunta {(missao.index || 0) + 1} de 5
+          <div style={styles.perguntaHeaderRow}>
+            <span style={styles.perguntaBadge}>
+              ❓ Pergunta {(missao.index || 0) + 1} de 5
+            </span>
           </div>
           <p style={styles.perguntaTexto}>{missao.pergunta}</p>
         </div>
 
-        {/* Opções */}
+        {/* Opções ou Resultado */}
         {!respondeu ? (
-          <div style={styles.opcoesGrid}>
-            {missao.opcoes.map((op, i) => (
-              <button
-                key={i}
-                style={{
-                  ...styles.opcaoBtn,
-                  background: ['rgba(233,30,99,0.15)','rgba(63,81,181,0.15)',
-                    'rgba(0,137,123,0.15)','rgba(245,127,23,0.15)'][i],
-                  borderColor: ['#e91e63','#3f51b5','#00897b','#f57f17'][i],
-                }}
-                onClick={() => responder(op)}
-              >
-                <span style={styles.opcaoLetra}>
-                  {['A','B','C','D'][i]}
-                </span>
-                {op}
-              </button>
-            ))}
+          <div style={styles.opcoesLista}>
+            {missao.opcoes.map((op, i) => {
+              const cores = [
+                { bg: 'rgba(233,30,140,0.1)', border: '#E91E8C', hover: 'rgba(233,30,140,0.25)' },
+                { bg: 'rgba(139,47,201,0.1)', border: '#8B2FC9', hover: 'rgba(139,47,201,0.25)' },
+                { bg: 'rgba(63,81,181,0.1)',  border: '#3f51b5', hover: 'rgba(63,81,181,0.25)' },
+                { bg: 'rgba(0,137,123,0.1)',  border: '#00897b', hover: 'rgba(0,137,123,0.25)' },
+              ];
+              return (
+                <button
+                  key={i}
+                  style={{
+                    ...styles.opcaoBtn,
+                    background: opcaoSelecionada === op
+                      ? cores[i].hover
+                      : cores[i].bg,
+                    borderColor: cores[i].border,
+                    boxShadow: opcaoSelecionada === op
+                      ? `0 0 20px ${cores[i].border}66`
+                      : 'none',
+                    transform: opcaoSelecionada === op ? 'scale(1.02)' : 'scale(1)',
+                  }}
+                  onClick={() => responder(op)}
+                >
+                  <span style={{
+                    ...styles.opcaoLetra,
+                    background: cores[i].border,
+                    boxShadow: `0 0 10px ${cores[i].border}88`,
+                  }}>
+                    {['A','B','C','D'][i]}
+                  </span>
+                  <span style={styles.opcaoTexto}>{op}</span>
+                </button>
+              );
+            })}
           </div>
         ) : (
           <div style={{
             ...styles.resultadoCard,
             background: resultado
-              ? 'rgba(76,175,80,0.2)'
-              : 'rgba(244,67,54,0.2)',
+              ? 'linear-gradient(135deg, rgba(76,175,80,0.15), rgba(76,175,80,0.05))'
+              : 'linear-gradient(135deg, rgba(244,67,54,0.15), rgba(244,67,54,0.05))',
             border: `2px solid ${resultado ? '#4caf50' : '#f44336'}`,
+            boxShadow: resultado
+              ? '0 0 30px rgba(76,175,80,0.2)'
+              : '0 0 30px rgba(244,67,54,0.2)',
           }}>
-            <div style={styles.resultadoEmoji}>
+            <span style={styles.resultadoEmoji}>
               {resultado ? '🎉' : '😅'}
-            </div>
-            <p style={styles.resultadoTexto}>
-              {resultado
-                ? 'Você acertou! Continue avançando!'
-                : `Quase! A resposta era: ${missao.resposta_certa}`}
-            </p>
-            {resultado && (
-              <p style={styles.resultadoCheckpoint}>
-                ✅ Checkpoint {checkpoint} conquistado!
+            </span>
+            <div style={styles.resultadoTextos}>
+              <p style={{
+                ...styles.resultadoTitulo,
+                color: resultado ? '#4caf50' : '#f44336',
+              }}>
+                {resultado ? 'Acertou!' : 'Quase lá!'}
               </p>
-            )}
+              <p style={styles.resultadoSub}>
+                {resultado
+                  ? `Checkpoint ${checkpoint} conquistado! Continue avançando!`
+                  : `A resposta certa era: ${missao.resposta_certa}`}
+              </p>
+            </div>
           </div>
         )}
       </div>
@@ -261,10 +366,53 @@ export default function Aluno() {
   );
 }
 
+// Componente de partículas
+function Particles() {
+  return (
+    <div style={stylesParticles.wrap}>
+      {[...Array(25)].map((_, i) => (
+        <div key={i} style={{
+          ...stylesParticles.particle,
+          left: `${Math.random() * 100}%`,
+          top: `${Math.random() * 100}%`,
+          width: `${1 + Math.random() * 3}px`,
+          height: `${1 + Math.random() * 3}px`,
+          background: ['#E91E8C','#C026D3','#8B2FC9','#ffffff'][Math.floor(Math.random() * 4)],
+          animationDelay: `${Math.random() * 5}s`,
+          animationDuration: `${3 + Math.random() * 5}s`,
+          opacity: 0.3 + Math.random() * 0.5,
+        }}/>
+      ))}
+    </div>
+  );
+}
+
+const stylesParticles = {
+  wrap: {
+    position: 'fixed',
+    inset: 0,
+    pointerEvents: 'none',
+    zIndex: 0,
+    overflow: 'hidden',
+  },
+  particle: {
+    position: 'absolute',
+    borderRadius: '50%',
+    animation: 'pulse 3s ease-in-out infinite',
+  },
+};
+
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `${r},${g},${b}`;
+}
+
 const styles = {
   container: {
     minHeight: '100vh',
-    background: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)',
+    background: 'linear-gradient(135deg, #0a0010, #120020, #0a0818)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -273,230 +421,278 @@ const styles = {
     overflow: 'hidden',
     fontFamily: "'Segoe UI', Arial, sans-serif",
   },
-  bgCircle1: {
-    position: 'absolute',
-    width: '400px', height: '400px',
-    borderRadius: '50%',
-    background: 'rgba(240,192,64,0.05)',
-    top: '-100px', right: '-100px',
-    pointerEvents: 'none',
-  },
-  bgCircle2: {
-    position: 'absolute',
-    width: '300px', height: '300px',
-    borderRadius: '50%',
-    background: 'rgba(63,81,181,0.1)',
-    bottom: '-80px', left: '-80px',
-    pointerEvents: 'none',
-  },
   loginBox: {
     width: '100%',
-    maxWidth: '420px',
-    background: 'rgba(255,255,255,0.05)',
-    borderRadius: '24px',
-    padding: '36px 28px',
-    border: '1px solid rgba(255,255,255,0.1)',
-    backdropFilter: 'blur(20px)',
+    maxWidth: '440px',
+    background: 'rgba(255,255,255,0.03)',
+    borderRadius: '28px',
+    padding: '40px 32px',
+    border: '1px solid rgba(139,47,201,0.25)',
+    backdropFilter: 'blur(30px)',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    gap: '20px',
     zIndex: 1,
-  },
-  logo: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    marginBottom: '20px',
-    background: 'rgba(240,192,64,0.1)',
-    border: '1px solid rgba(240,192,64,0.4)',
-    borderRadius: '10px',
-    padding: '6px 18px',
-  },
-  logoEpic: {
-    fontSize: '1.6rem',
-    fontWeight: '900',
-    color: '#f0c040',
-    letterSpacing: '4px',
-  },
-  logoInstituto: {
-    fontSize: '0.55rem',
-    color: 'rgba(240,192,64,0.6)',
-    letterSpacing: '3px',
+    boxShadow: '0 0 60px rgba(139,47,201,0.15), 0 20px 60px rgba(0,0,0,0.5)',
   },
   tituloJogo: {
-    fontSize: '1.8rem',
+    fontSize: '2rem',
     color: 'white',
-    marginBottom: '6px',
     textAlign: 'center',
+    margin: 0,
+    textShadow: '0 0 20px rgba(192,38,211,0.5)',
   },
   subtitulo: {
-    fontSize: '0.9rem',
-    color: 'rgba(255,255,255,0.5)',
-    marginBottom: '20px',
+    fontSize: '0.85rem',
+    color: 'rgba(255,255,255,0.4)',
+    textAlign: 'center',
+    margin: 0,
   },
   avatarGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(4,1fr)',
-    gap: '8px',
-    marginBottom: '20px',
+    gap: '10px',
     width: '100%',
   },
   avatarBtn: {
-    fontSize: '1.8rem',
-    padding: '10px',
-    borderRadius: '12px',
+    padding: '12px 8px',
+    borderRadius: '14px',
     cursor: 'pointer',
     transition: 'all 0.2s',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    position: 'relative',
   },
-  input: {
+  avatarEmoji: { fontSize: '2rem' },
+  avatarCheck: {
+    position: 'absolute',
+    top: 4, right: 4,
+    width: '16px', height: '16px',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '10px',
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  inputWrap: {
+    display: 'flex',
+    alignItems: 'center',
     width: '100%',
-    padding: '14px 18px',
-    borderRadius: '12px',
-    border: '1px solid rgba(255,255,255,0.15)',
-    background: 'rgba(255,255,255,0.07)',
+    background: 'rgba(255,255,255,0.06)',
+    borderRadius: '14px',
+    border: '1px solid rgba(139,47,201,0.3)',
+    padding: '0 16px',
+    boxSizing: 'border-box',
+  },
+  inputIcon: { fontSize: '1.2rem', marginRight: '10px' },
+  input: {
+    flex: 1,
+    padding: '14px 0',
+    border: 'none',
+    background: 'transparent',
     color: 'white',
     fontSize: '1rem',
-    marginBottom: '14px',
     outline: 'none',
-    textAlign: 'center',
-    boxSizing: 'border-box',
+    fontFamily: "'Segoe UI', Arial, sans-serif",
   },
   botaoEntrar: {
     width: '100%',
     padding: '16px',
-    background: 'linear-gradient(135deg, #f0c040, #ff9800)',
-    color: '#1a1a2e',
+    background: 'linear-gradient(135deg, #E91E8C, #C026D3, #8B2FC9)',
+    color: 'white',
     border: 'none',
-    borderRadius: '12px',
+    borderRadius: '14px',
     fontSize: '1.1rem',
-    fontWeight: 'bold',
-    cursor: 'pointer',
+    fontWeight: '700',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '10px',
+    boxShadow: '0 4px 20px rgba(233,30,140,0.4)',
+    fontFamily: "'Segoe UI', Arial, sans-serif",
+    letterSpacing: '0.5px',
+  },
+  botaoIcon: { fontSize: '1.3rem' },
+  disclaimer: {
+    fontSize: '0.75rem',
+    color: 'rgba(255,255,255,0.25)',
+    textAlign: 'center',
+    margin: 0,
   },
   aguardandoBox: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '14px',
+    gap: '18px',
     zIndex: 1,
+    maxWidth: '400px',
+    width: '100%',
+  },
+  avatarGrandeWrap: {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: '10px',
+  },
+  avatarGrandeBg: {
+    position: 'absolute',
+    width: '120px', height: '120px',
+    borderRadius: '50%',
   },
   avatarGrande: {
-    fontSize: '5rem',
+    fontSize: '5.5rem',
     animation: 'float 3s ease-in-out infinite',
+    position: 'relative',
+    zIndex: 1,
   },
   nomeAluno: {
-    fontSize: '1.6rem',
+    fontSize: '1.8rem',
     color: 'white',
-    fontWeight: '600',
+    fontWeight: '700',
+    margin: 0,
+    textAlign: 'center',
+  },
+  badgesRow: {
+    display: 'flex',
+    gap: '10px',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
   },
   checkpointBadge: {
-    background: 'rgba(240,192,64,0.15)',
-    border: '1px solid rgba(240,192,64,0.4)',
-    color: '#f0c040',
-    padding: '6px 16px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px',
+    background: 'rgba(139,47,201,0.15)',
+    border: '1px solid rgba(139,47,201,0.4)',
     borderRadius: '20px',
-    fontSize: '0.85rem',
-    fontWeight: 'bold',
+    padding: '6px 16px',
   },
+  cpNum: { fontSize: '1.1rem', fontWeight: '900', color: '#E91E8C' },
+  cpSlash: { fontSize: '0.9rem', color: 'rgba(255,255,255,0.3)' },
+  cpTotal: { fontSize: '0.9rem', color: 'rgba(255,255,255,0.5)' },
+  cpLabel: { fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', marginLeft: '4px' },
   posicaoBadge: {
-    background: 'rgba(255,255,255,0.07)',
-    color: 'white',
-    padding: '6px 16px',
+    background: 'rgba(233,30,140,0.1)',
+    border: '1px solid rgba(233,30,140,0.3)',
     borderRadius: '20px',
+    padding: '6px 16px',
     fontSize: '0.9rem',
+    color: 'white',
   },
-  aguardandoCard: {
-    background: 'rgba(255,255,255,0.05)',
+  trilhaMiniWrap: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0',
+    background: 'rgba(255,255,255,0.03)',
     borderRadius: '16px',
-    padding: '20px 32px',
-    border: '1px solid rgba(255,255,255,0.08)',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '10px',
+    padding: '12px 16px',
+    border: '1px solid rgba(139,47,201,0.15)',
+    width: '100%',
+    justifyContent: 'center',
+    boxSizing: 'border-box',
   },
-  loadingDots: { display: 'flex', gap: '8px' },
-  dot: {
-    width: '10px', height: '10px',
-    borderRadius: '50%',
-    background: '#f0c040',
-    animation: 'pulse 1.2s ease-in-out infinite',
-    display: 'inline-block',
-  },
-  aguardandoTexto: {
-    color: 'rgba(255,255,255,0.5)',
-    fontSize: '0.95rem',
-  },
-  trilhaMini: {
-    display: 'flex',
-    gap: '6px',
-    alignItems: 'center',
-  },
-  cpMini: {
-    width: '28px', height: '8px',
-    borderRadius: '4px',
-    transition: 'background 0.5s',
-  },
-  cpMiniEmoji: {
+  cpMiniItem: {
     width: '36px', height: '36px',
-    borderRadius: '8px',
+    borderRadius: '10px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: '1.2rem',
-    transition: 'all 0.3s',
+    transition: 'all 0.4s',
+    flexShrink: 0,
+  },
+  cpConector: {
+    width: '16px', height: '3px',
+    borderRadius: '2px',
+    flexShrink: 0,
+    transition: 'all 0.4s',
+  },
+  aguardandoCard: {
+    background: 'rgba(255,255,255,0.04)',
+    borderRadius: '16px',
+    padding: '20px 32px',
+    border: '1px solid rgba(139,47,201,0.15)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '12px',
+    width: '100%',
+    boxSizing: 'border-box',
+  },
+  loadingWrap: { display: 'flex', gap: '10px' },
+  dot: {
+    width: '12px', height: '12px',
+    borderRadius: '50%',
+    animation: 'pulse 1.2s ease-in-out infinite',
+  },
+  aguardandoTexto: {
+    color: 'rgba(255,255,255,0.4)',
+    fontSize: '0.95rem',
+    margin: 0,
   },
   jogoBox: {
     width: '100%',
-    maxWidth: '460px',
+    maxWidth: '480px',
     display: 'flex',
     flexDirection: 'column',
     gap: '14px',
     zIndex: 1,
   },
   jogoHeader: {
-    background: 'rgba(255,255,255,0.05)',
-    borderRadius: '14px',
+    background: 'rgba(255,255,255,0.04)',
+    borderRadius: '16px',
     padding: '14px 18px',
     display: 'flex',
     alignItems: 'center',
-    gap: '12px',
-    border: '1px solid rgba(255,255,255,0.08)',
+    justifyContent: 'space-between',
+    border: '1px solid rgba(139,47,201,0.2)',
+    backdropFilter: 'blur(10px)',
   },
-  avatarPequeno: { fontSize: '2.2rem' },
-  jogoNome: { color: 'white', fontWeight: 'bold', fontSize: '1rem', margin: 0 },
-  jogoCp: { color: '#f0c040', fontSize: '0.8rem', margin: 0 },
-  posicaoMini: {
-    marginLeft: 'auto',
-    fontSize: '1.6rem',
+  jogoAvatarWrap: { display: 'flex', alignItems: 'center', gap: '12px' },
+  jogoAvatarCircle: {
+    width: '44px', height: '44px',
+    borderRadius: '12px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '1.8rem',
   },
+  jogoNome: { color: 'white', fontWeight: '700', fontSize: '1rem', margin: 0 },
+  jogoCp: { color: '#C026D3', fontSize: '0.8rem', margin: '2px 0 0', fontWeight: '600' },
+  posicaoWrap: { display: 'flex', flexDirection: 'column', alignItems: 'center' },
+  posicaoEmoji: { fontSize: '1.8rem', lineHeight: 1 },
+  posicaoLabel: { fontSize: '0.6rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' },
   perguntaCard: {
-    background: 'rgba(255,255,255,0.07)',
-    borderRadius: '16px',
+    background: 'rgba(255,255,255,0.05)',
+    borderRadius: '18px',
     padding: '22px',
-    border: '1px solid rgba(255,255,255,0.1)',
+    border: '1px solid rgba(139,47,201,0.2)',
+    backdropFilter: 'blur(10px)',
+    boxShadow: '0 0 20px rgba(139,47,201,0.1)',
   },
-  perguntaNumero: {
-    fontSize: '0.75rem',
-    color: '#f0c040',
+  perguntaHeaderRow: { marginBottom: '12px' },
+  perguntaBadge: {
+    fontSize: '0.72rem',
+    color: '#C026D3',
     textTransform: 'uppercase',
     letterSpacing: '1px',
-    marginBottom: '10px',
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
   perguntaTexto: {
     fontSize: '1.15rem',
     color: 'white',
-    lineHeight: '1.5',
+    lineHeight: '1.6',
     margin: 0,
   },
-  opcoesGrid: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px',
-  },
+  opcoesLista: { display: 'flex', flexDirection: 'column', gap: '10px' },
   opcaoBtn: {
     padding: '14px 18px',
-    borderRadius: '12px',
+    borderRadius: '14px',
     border: '1px solid',
     color: 'white',
     fontSize: '0.95rem',
@@ -504,39 +700,33 @@ const styles = {
     textAlign: 'left',
     display: 'flex',
     alignItems: 'center',
-    gap: '12px',
-    transition: 'transform 0.1s',
+    gap: '14px',
+    transition: 'all 0.2s',
+    fontFamily: "'Segoe UI', Arial, sans-serif",
+    backdropFilter: 'blur(10px)',
   },
   opcaoLetra: {
-    width: '28px', height: '28px',
+    width: '30px', height: '30px',
     borderRadius: '50%',
-    background: 'rgba(255,255,255,0.1)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontWeight: 'bold',
+    fontWeight: '900',
     fontSize: '0.85rem',
+    color: 'white',
     flexShrink: 0,
   },
+  opcaoTexto: { color: 'white', fontSize: '0.95rem', lineHeight: '1.4' },
   resultadoCard: {
-    borderRadius: '16px',
-    padding: '28px',
+    borderRadius: '20px',
+    padding: '30px',
     display: 'flex',
-    flexDirection: 'column',
     alignItems: 'center',
-    gap: '10px',
+    gap: '18px',
+    backdropFilter: 'blur(10px)',
   },
-  resultadoEmoji: { fontSize: '3.5rem' },
-  resultadoTexto: {
-    color: 'white',
-    fontSize: '1rem',
-    textAlign: 'center',
-    margin: 0,
-  },
-  resultadoCheckpoint: {
-    color: '#4caf50',
-    fontSize: '0.9rem',
-    fontWeight: 'bold',
-    margin: 0,
-  },
+  resultadoEmoji: { fontSize: '3.5rem', flexShrink: 0 },
+  resultadoTextos: { display: 'flex', flexDirection: 'column', gap: '6px' },
+  resultadoTitulo: { fontSize: '1.4rem', fontWeight: '900', margin: 0 },
+  resultadoSub: { fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)', margin: 0, lineHeight: '1.4' },
 };
