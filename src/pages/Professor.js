@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { db } from '../firebase';
-import { ref, set, onValue, remove, push } from 'firebase/database';
+import { ref, set, onValue, remove } from 'firebase/database';
 import LogoEpic from '../components/LogoEpic';
 
 const PERGUNTA_VAZIA = () => ({
