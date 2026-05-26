@@ -1,8 +1,8 @@
 /* eslint-disable no-undef */
 import React, { useState } from 'react';
 
-const GEMINI_KEY = process.env.REACT_APP_GEMINI_KEY || '';
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${GEMINI_KEY}`;
+const GROQ_KEY = process.env.REACT_APP_GROQ_KEY || '';
+const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 const MATERIAS = ['Matemática','Português','Ciências','História','Geografia','Inglês','Artes','Ed. Física'];
 const NIVEIS = [
@@ -44,12 +44,17 @@ Regras:
 - resposta_certa deve ser EXATAMENTE igual a uma das opcoes
 - Retorne exatamente ${quantidade} perguntas`;
 
-      const response = await fetch(GEMINI_URL, {
+      const response = await fetch(GROQ_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${GROQ_KEY}`,
+        },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
+          model: 'llama3-8b-8192',
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.7,
+          max_tokens: 2048,
         }),
       });
 
@@ -59,7 +64,7 @@ Regras:
       }
 
       const data = await response.json();
-      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const text = data?.choices?.[0]?.message?.content || '';
       const clean = text.replace(/```json|```/g, '').trim();
       const inicio = clean.indexOf('[');
       const fim = clean.lastIndexOf(']');
@@ -117,9 +122,7 @@ Regras:
                 ...styles.opcaoBtn,
                 background: materia === m ? 'linear-gradient(135deg, #E91E8C, #C026D3)' : 'rgba(255,255,255,0.05)',
                 border: materia === m ? 'none' : '1px solid rgba(255,255,255,0.1)',
-              }} onClick={() => setMateria(m)}>
-                {m}
-              </button>
+              }} onClick={() => setMateria(m)}>{m}</button>
             ))}
           </div>
         </div>
@@ -132,9 +135,7 @@ Regras:
                 ...styles.opcaoBtn,
                 background: nivelAtivo === n.label ? 'linear-gradient(135deg, #3f51b5, #1a237e)' : 'rgba(255,255,255,0.05)',
                 border: nivelAtivo === n.label ? 'none' : '1px solid rgba(255,255,255,0.1)',
-              }} onClick={() => { setNivelAtivo(n.label); setAno(n.anos[0]); }}>
-                {n.label}
-              </button>
+              }} onClick={() => { setNivelAtivo(n.label); setAno(n.anos[0]); }}>{n.label}</button>
             ))}
           </div>
         </div>
@@ -147,9 +148,7 @@ Regras:
                 ...styles.opcaoBtn,
                 background: ano === a ? 'linear-gradient(135deg, #8B2FC9, #3f51b5)' : 'rgba(255,255,255,0.05)',
                 border: ano === a ? 'none' : '1px solid rgba(255,255,255,0.1)',
-              }} onClick={() => setAno(a)}>
-                {a}
-              </button>
+              }} onClick={() => setAno(a)}>{a}</button>
             ))}
           </div>
         </div>
@@ -172,9 +171,7 @@ Regras:
                 ...styles.opcaoBtn,
                 background: quantidade === q ? 'linear-gradient(135deg, #00897b, #00695c)' : 'rgba(255,255,255,0.05)',
                 border: quantidade === q ? 'none' : '1px solid rgba(255,255,255,0.1)',
-              }} onClick={() => setQuantidade(q)}>
-                {q}
-              </button>
+              }} onClick={() => setQuantidade(q)}>{q}</button>
             ))}
           </div>
         </div>
