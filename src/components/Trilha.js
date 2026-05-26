@@ -29,40 +29,33 @@ export default function Trilha({ alunos, perguntaAtual }) {
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          {/* Gradientes do céu */}
           <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#0a0010"/>
             <stop offset="60%" stopColor="#1a0030"/>
             <stop offset="100%" stopColor="#0d1a4a"/>
           </linearGradient>
-          {/* Gradiente da ilha */}
           <radialGradient id="ilha" cx="50%" cy="70%" r="60%">
             <stop offset="0%" stopColor="#1a4a1a"/>
             <stop offset="50%" stopColor="#145214"/>
             <stop offset="100%" stopColor="#0a2e0a"/>
           </radialGradient>
-          {/* Brilho roxo de fundo */}
           <radialGradient id="glowBg" cx="50%" cy="40%" r="50%">
             <stop offset="0%" stopColor="rgba(139,47,201,0.15)"/>
             <stop offset="100%" stopColor="rgba(139,47,201,0)"/>
           </radialGradient>
-          {/* Gradiente oceano */}
           <linearGradient id="ocean" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#0d2b6e"/>
             <stop offset="100%" stopColor="#050f2e"/>
           </linearGradient>
-          {/* Gradiente trilha */}
           <linearGradient id="trailGrad" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stopColor="#8B2FC9"/>
             <stop offset="50%" stopColor="#C026D3"/>
             <stop offset="100%" stopColor="#E91E8C"/>
           </linearGradient>
-          {/* Gradiente checkpoint ativo */}
           <radialGradient id="cpActive" cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="#E91E8C"/>
             <stop offset="100%" stopColor="#8B2FC9"/>
           </radialGradient>
-          {/* Brilho checkpoint */}
           <filter id="glow">
             <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
             <feMerge>
@@ -79,7 +72,6 @@ export default function Trilha({ alunos, perguntaAtual }) {
           </filter>
         </defs>
 
-        {/* Fundo céu */}
         <rect width="1000" height="340" fill="url(#sky)"/>
         <rect width="1000" height="340" fill="url(#glowBg)"/>
 
@@ -93,14 +85,10 @@ export default function Trilha({ alunos, perguntaAtual }) {
             fill="#fff" opacity={0.4+Math.random()*0.5}/>
         ))}
 
-        {/* Nebulosa roxa */}
         <ellipse cx="200" cy="60" rx="180" ry="60" fill="rgba(139,47,201,0.08)"/>
         <ellipse cx="750" cy="40" rx="200" ry="50" fill="rgba(192,38,211,0.06)"/>
-
-        {/* Oceano */}
         <ellipse cx="500" cy="340" rx="560" ry="80" fill="url(#ocean)"/>
 
-        {/* Ondas */}
         <path d="M0 310 Q80 300 160 310 Q240 320 320 310 Q400 300 480 310 Q560 320 640 310 Q720 300 800 310 Q880 320 960 310 Q980 308 1000 310 L1000 340 L0 340Z"
               fill="#0a1f5c" opacity="0.7"/>
         <path d="M0 325 Q100 315 200 325 Q300 335 400 325 Q500 315 600 325 Q700 335 800 325 Q900 315 1000 325 L1000 340 L0 340Z"
@@ -113,7 +101,6 @@ export default function Trilha({ alunos, perguntaAtual }) {
         <ellipse cx="500" cy="228" rx="400" ry="88"  fill="#1a6b1a"/>
         <ellipse cx="500" cy="220" rx="370" ry="76"  fill="#1e7a1e"/>
 
-        {/* Texturas da ilha — arbustos */}
         <ellipse cx="120" cy="262" rx="55" ry="25" fill="#0d3b0d"/>
         <ellipse cx="880" cy="258" rx="50" ry="22" fill="#0d3b0d"/>
         <ellipse cx="320" cy="272" rx="40" ry="18" fill="#0a2e0a"/>
@@ -134,7 +121,7 @@ export default function Trilha({ alunos, perguntaAtual }) {
           </g>
         ))}
 
-        {/* Rochas decorativas */}
+        {/* Rochas */}
         {[[200,260],[400,270],[600,268],[800,262]].map(([rx,ry],i) => (
           <g key={i}>
             <ellipse cx={rx} cy={ry} rx="12" ry="8" fill="#2a1a0a"/>
@@ -143,23 +130,19 @@ export default function Trilha({ alunos, perguntaAtual }) {
         ))}
 
         {/* TRILHA */}
-        {/* Sombra da trilha */}
         <path
           d="M78 258 C130 235 175 215 240 188 C305 161 355 145 430 122 C490 104 550 90 625 76 C685 65 745 58 820 48 C860 43 900 40 930 36"
           fill="none" stroke="rgba(0,0,0,0.5)" strokeWidth="28" strokeLinecap="round"
         />
-        {/* Base da trilha */}
         <path
           d="M78 258 C130 235 175 215 240 188 C305 161 355 145 430 122 C490 104 550 90 625 76 C685 65 745 58 820 48 C860 43 900 40 930 36"
           fill="none" stroke="#3b1f6b" strokeWidth="24" strokeLinecap="round"
         />
-        {/* Trilha colorida */}
         <path
           d="M78 258 C130 235 175 215 240 188 C305 161 355 145 430 122 C490 104 550 90 625 76 C685 65 745 58 820 48 C860 43 900 40 930 36"
           fill="none" stroke="url(#trailGrad)" strokeWidth="16" strokeLinecap="round"
           opacity="0.8"
         />
-        {/* Tracejado central */}
         <path
           d="M78 258 C130 235 175 215 240 188 C305 161 355 145 430 122 C490 104 550 90 625 76 C685 65 745 58 820 48 C860 43 900 40 930 36"
           fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="3"
@@ -175,7 +158,6 @@ export default function Trilha({ alunos, perguntaAtual }) {
 
           return (
             <g key={cp.id} filter={ativo ? "url(#glowStrong)" : concluido ? "url(#glow)" : ""}>
-              {/* Halo externo */}
               {ativo && (
                 <>
                   <circle cx={cx} cy={cy} r="36" fill="rgba(233,30,140,0.1)"/>
@@ -183,31 +165,25 @@ export default function Trilha({ alunos, perguntaAtual }) {
                     stroke="rgba(233,30,140,0.4)" strokeWidth="1"/>
                 </>
               )}
-              {/* Círculo principal */}
               <circle
                 cx={cx} cy={cy} r="22"
                 fill={concluido ? '#4a1080' : ativo ? 'url(#cpActive)' : '#0d2b0d'}
                 stroke={ativo ? '#E91E8C' : concluido ? '#C026D3' : '#2a5a2a'}
                 strokeWidth={ativo ? 3 : 2}
               />
-              {/* Emoji */}
               <text x={cx} y={cy+8} textAnchor="middle" fontSize="20">{cp.emoji}</text>
-              {/* Label */}
-              <rect x={cx-34} y={cy-42} width="68" height="18" rx="5"
-                fill="rgba(0,0,0,0.7)"/>
+              <rect x={cx-34} y={cy-42} width="68" height="18" rx="5" fill="rgba(0,0,0,0.7)"/>
               <text x={cx} y={cy-29} textAnchor="middle" fontSize="11"
                 fontFamily="Arial" fontWeight="bold"
                 fill={ativo ? '#E91E8C' : concluido ? '#C026D3' : '#5a9a5a'}>
                 {cp.nome}
               </text>
-              {/* Número */}
               {i > 0 && i < 5 && (
                 <text x={cx} y={cy+38} textAnchor="middle" fontSize="9"
                   fontFamily="Arial" fill="rgba(255,255,255,0.4)">
                   Q{i}
                 </text>
               )}
-              {/* Check de concluído */}
               {concluido && i > 0 && (
                 <text x={cx+16} y={cy-14} fontSize="12">✅</text>
               )}
@@ -215,9 +191,8 @@ export default function Trilha({ alunos, perguntaAtual }) {
           );
         })}
 
-        {/* AVATARES */}
-       {lista.map(([id, aluno], i) => {
-          const pontos = aluno.pontos || 0;
+        {/* AVATARES com animação */}
+        {lista.map(([id, aluno], i) => {
           const acertos = aluno.acertos || 0;
           const cpIndex = Math.min(acertos, 5);
           const cp = CHECKPOINTS[cpIndex];
@@ -228,41 +203,37 @@ export default function Trilha({ alunos, perguntaAtual }) {
           const offsetX = (col - 2.5) * 18;
           const offsetY = row * 22;
           const cor = CORES_AVATAR[i % CORES_AVATAR.length];
+          const finalX = cx + offsetX;
+          const finalY = cy - 28 - offsetY;
 
           return (
             <g key={id}>
-              {/* Sombra do avatar */}
-              <ellipse cx={cx+offsetX} cy={cy-18-offsetY+2} rx="12" ry="4"
-                fill="rgba(0,0,0,0.4)"/>
-              {/* Brilho se acertou */}
-              {aluno.acertou && (
-                <circle cx={cx+offsetX} cy={cy-28-offsetY} r="16"
-                  fill="rgba(233,30,140,0.2)" stroke="rgba(233,30,140,0.5)"
-                  strokeWidth="1"/>
-              )}
-              {/* Círculo do avatar */}
-              <circle cx={cx+offsetX} cy={cy-28-offsetY} r="13"
-                fill={cor} stroke="white" strokeWidth="2"/>
-              {/* Emoji do avatar */}
-              <text x={cx+offsetX} y={cy-23-offsetY}
-                textAnchor="middle" fontSize="14">{aluno.avatar}</text>
-              {/* Nome */}
-              <rect x={cx+offsetX-18} y={cy-12-offsetY} width="36" height="11"
-                rx="3" fill="rgba(0,0,0,0.75)"/>
-              <text x={cx+offsetX} y={cy-3-offsetY}
-                textAnchor="middle" fontSize="8"
-                fontFamily="Arial" fill="white">
-                {aluno.nome?.split(' ')[0]}
-              </text>
-              {/* Estrela se acertou */}
-              {aluno.acertou && (
-                <text x={cx+offsetX+10} y={cy-36-offsetY} fontSize="10">⭐</text>
-              )}
+              <g style={{
+                transform: `translate(${finalX}px, ${finalY}px)`,
+                transition: 'transform 2s ease-in-out',
+              }}>
+                <ellipse cx={0} cy={10} rx="12" ry="4" fill="rgba(0,0,0,0.4)"/>
+                {aluno.acertou && (
+                  <circle cx={0} cy={0} r="16"
+                    fill="rgba(233,30,140,0.2)" stroke="rgba(233,30,140,0.5)"
+                    strokeWidth="1"/>
+                )}
+                <circle cx={0} cy={0} r="13" fill={cor} stroke="white" strokeWidth="2"/>
+                <text x={0} y={5} textAnchor="middle" fontSize="14">{aluno.avatar}</text>
+                <rect x={-18} y={16} width="36" height="11" rx="3" fill="rgba(0,0,0,0.75)"/>
+                <text x={0} y={25} textAnchor="middle" fontSize="8"
+                  fontFamily="Arial" fill="white">
+                  {aluno.nome?.split(' ')[0]}
+                </text>
+                {aluno.acertou && (
+                  <text x={10} y={-8} fontSize="10">⭐</text>
+                )}
+              </g>
             </g>
           );
         })}
 
-        {/* Partículas mágicas na trilha */}
+        {/* Partículas mágicas */}
         {[
           [240,188],[350,155],[450,125],[560,96],[670,72],[780,52]
         ].map(([px,py],i) => (
