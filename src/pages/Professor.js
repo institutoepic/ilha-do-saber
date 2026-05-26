@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { db } from '../firebase';
 import { ref, set, onValue, remove } from 'firebase/database';
 import LogoEpic from '../components/LogoEpic';
+import GeradorIA from '../components/GeradorIA';
 
 const PERGUNTA_VAZIA = () => ({
   pergunta: '',
@@ -389,7 +390,7 @@ export default function Professor() {
               />
             </div>
           </div>
-
+          <GeradorIA onGerado={perguntas => setPerguntas(perguntas)}/>
           <div style={styles.perguntasGrid}>
             {perguntas.map((p, i) => (
               <div key={i} style={styles.card}>
