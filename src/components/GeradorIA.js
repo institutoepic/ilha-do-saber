@@ -26,7 +26,7 @@ export default function GeradorIA({ onGerado }) {
     setErro('');
     try {
       const genAI = new GoogleGenerativeAI(GEMINI_KEY);
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
 
       const prompt = `Crie ${quantidade} perguntas de múltipla escolha sobre ${materia} para alunos do ${ano}${tema ? `, com foco em: ${tema}` : ''}.
 
