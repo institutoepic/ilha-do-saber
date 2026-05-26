@@ -5,17 +5,15 @@ export default function QRCodeCard({ baseUrl }) {
   const [mostrando, setMostrando] = useState('aluno');
 
   const links = {
-    aluno: { url: baseUrl, label: '👨‍🎓 Alunos', cor: '#E91E8C' },
-    professor: { url: `${baseUrl}/professor`, label: '👨‍🏫 Professor', cor: '#8B2FC9' },
+    aluno: { url: baseUrl, label: 'Alunos', cor: '#E91E8C' },
+    professor: { url: `${baseUrl}/professor`, label: 'Professor', cor: '#8B2FC9' },
   };
 
   const atual = links[mostrando];
 
   return (
     <div style={styles.container}>
-      <p style={styles.titulo}>📱 Acesse pelo celular</p>
-
-      {/* Abas */}
+      <p style={styles.titulo}>Acesse pelo celular</p>
       <div style={styles.abas}>
         {Object.entries(links).map(([key, val]) => (
           <button
@@ -23,7 +21,9 @@ export default function QRCodeCard({ baseUrl }) {
             style={{
               ...styles.aba,
               background: mostrando === key ? val.cor : 'rgba(255,255,255,0.05)',
-              border: mostrando === key ? `1px solid ${val.cor}` : '1px solid rgba(255,255,255,0.1)',
+              border: mostrando === key
+                ? `1px solid ${val.cor}`
+                : '1px solid rgba(255,255,255,0.1)',
             }}
             onClick={() => setMostrando(key)}
           >
@@ -31,8 +31,6 @@ export default function QRCodeCard({ baseUrl }) {
           </button>
         ))}
       </div>
-
-      {/* QR Code */}
       <div style={{ ...styles.qrWrap, boxShadow: `0 0 20px ${atual.cor}44` }}>
         <QRCodeSVG
           value={atual.url}
@@ -43,8 +41,6 @@ export default function QRCodeCard({ baseUrl }) {
           includeMargin={true}
         />
       </div>
-
-      {/* URL */}
       <div style={styles.urlBox}>
         <span style={{ ...styles.urlTexto, color: atual.cor }}>
           {atual.url}
@@ -87,4 +83,26 @@ const styles = {
     fontSize: '0.7rem',
     fontWeight: '700',
     color: 'white',
-    fontFamily: "'Segoe UI',
+    fontFamily: 'Arial, sans-serif',
+    transition: 'all 0.2s',
+  },
+  qrWrap: {
+    borderRadius: '12px',
+    overflow: 'hidden',
+    padding: '4px',
+    background: 'white',
+  },
+  urlBox: {
+    background: 'rgba(139,47,201,0.1)',
+    borderRadius: '8px',
+    padding: '6px 10px',
+    width: '100%',
+    boxSizing: 'border-box',
+    textAlign: 'center',
+  },
+  urlTexto: {
+    fontSize: '0.68rem',
+    wordBreak: 'break-all',
+    fontWeight: '600',
+  },
+};
