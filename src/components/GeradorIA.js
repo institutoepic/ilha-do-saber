@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const GEMINI_KEY = process.env.REACT_APP_GEMINI_KEY;    
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_KEY}`;
 
 
 const MATERIAS = ['Matemática','Português','Ciências','História','Geografia','Inglês','Artes','Ed. Física'];
