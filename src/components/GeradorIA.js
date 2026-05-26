@@ -1,33 +1,30 @@
 import React, { useState } from 'react';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const GEMINI_KEY = 'AIzaSyB9HAeuoo-_2t8tT-ZlOZG2ZpZsGH_TF7k';
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GEMINI_KEY}`;
 
-const MATERIAS = ['Matemática','Português','Ciências','História','Geografia','Inglês','Artes','Educação Física'];
+const MATERIAS = ['Matemática','Português','Ciências','História','Geografia','Inglês','Artes','Ed. Física'];
 const NIVEIS = [
   { label: 'Ed. Infantil', anos: ['Maternal','Jardim I','Jardim II'] },
-  { label: 'Fund. I', anos: ['1º ano','2º ano','3º ano','4º ano','5º ano'] },
-  { label: 'Fund. II', anos: ['6º ano','7º ano','8º ano','9º ano'] },
-  { label: 'EJA', anos: ['EJA I','EJA II','EJA III'] },
+  { label: 'Fund. I',      anos: ['1º ano','2º ano','3º ano','4º ano','5º ano'] },
+  { label: 'Fund. II',     anos: ['6º ano','7º ano','8º ano','9º ano'] },
+  { label: 'EJA',          anos: ['EJA I','EJA II','EJA III'] },
 ];
 
 export default function GeradorIA({ onGerado }) {
-  const [materia, setMateria] = useState('Matemática');
-  const [ano, setAno] = useState('3º ano');
-  const [tema, setTema] = useState('');
+  const [materia, setMateria]       = useState('Matemática');
+  const [ano, setAno]               = useState('3º ano');
+  const [tema, setTema]             = useState('');
   const [quantidade, setQuantidade] = useState(5);
-  const [gerando, setGerando] = useState(false);
-  const [erro, setErro] = useState('');
-  const [aberto, setAberto] = useState(false);
+  const [gerando, setGerando]       = useState(false);
+  const [erro, setErro]             = useState('');
+  const [aberto, setAberto]         = useState(false);
   const [nivelAtivo, setNivelAtivo] = useState('Fund. I');
 
   async function gerarPerguntas() {
     setGerando(true);
     setErro('');
     try {
-      const genAI = new GoogleGenerativeAI(GEMINI_KEY);
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
-
       const prompt = `Crie ${quantidade} perguntas de múltipla escolha sobre ${materia} para alunos do ${ano}${tema ? `, com foco em: ${tema}` : ''}.
 
 Retorne APENAS um array JSON válido, sem texto antes ou depois, sem markdown, sem blocos de código. Apenas o JSON puro:
@@ -39,21 +36,34 @@ Retorne APENAS um array JSON válido, sem texto antes ou depois, sem markdown, s
   }
 ]
 
-Regras importantes:
+Regras:
 - Linguagem simples e adequada para ${ano}
-- Exatamente 4 opções por pergunta
+- Exatamente 4 opcoes por pergunta
 - Apenas uma resposta certa
-- A resposta_certa deve ser EXATAMENTE igual a uma das opcoes (cópia exata)
-- Perguntas criativas e educativas
+- resposta_certa deve ser EXATAMENTE igual a uma das opcoes
 - Retorne exatamente ${quantidade} perguntas`;
 
-      const result = await model.generateContent(prompt);
-      const text = result.response.text().trim();
+      const response = await fetch(GEMINI_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
+        }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err?.error?.message || `HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
       const clean = text.replace(/```json|```/g, '').trim();
       const inicio = clean.indexOf('[');
       const fim = clean.lastIndexOf(']');
-      const jsonLimpo = clean.slice(inicio, fim + 1);
-      const perguntas = JSON.parse(jsonLimpo);
+      if (inicio === -1 || fim === -1) throw new Error('JSON não encontrado');
+      const perguntas = JSON.parse(clean.slice(inicio, fim + 1));
 
       if (!Array.isArray(perguntas) || perguntas.length === 0) {
         throw new Error('Formato inválido');
@@ -72,7 +82,7 @@ Regras importantes:
       setTema('');
     } catch (e) {
       console.error(e);
-      setErro('Erro ao gerar perguntas. Verifique sua conexão e tente novamente!');
+      setErro(`Erro: ${e.message}`);
     }
     setGerando(false);
   }
