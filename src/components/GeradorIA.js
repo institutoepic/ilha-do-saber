@@ -1,6 +1,7 @@
+/* eslint-disable no-undef */
 import React, { useState } from 'react';
 
-const GEMINI_KEY = process.env.REACT_APP_GEMINI_KEY;
+const GEMINI_KEY = process.env.REACT_APP_GEMINI_KEY || '';
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_KEY}`;
 
 const MATERIAS = ['Matemática','Português','Ciências','História','Geografia','Inglês','Artes','Ed. Física'];
@@ -108,17 +109,13 @@ Regras:
       </div>
 
       <div style={styles.form}>
-
-        {/* Matéria */}
         <div style={styles.campo}>
           <label style={styles.label}>📚 Matéria</label>
           <div style={styles.opcoesBtns}>
             {MATERIAS.map(m => (
               <button key={m} style={{
                 ...styles.opcaoBtn,
-                background: materia === m
-                  ? 'linear-gradient(135deg, #E91E8C, #C026D3)'
-                  : 'rgba(255,255,255,0.05)',
+                background: materia === m ? 'linear-gradient(135deg, #E91E8C, #C026D3)' : 'rgba(255,255,255,0.05)',
                 border: materia === m ? 'none' : '1px solid rgba(255,255,255,0.1)',
               }} onClick={() => setMateria(m)}>
                 {m}
@@ -127,37 +124,28 @@ Regras:
           </div>
         </div>
 
-        {/* Nível */}
         <div style={styles.campo}>
           <label style={styles.label}>🎓 Nível de ensino</label>
           <div style={styles.opcoesBtns}>
             {NIVEIS.map(n => (
               <button key={n.label} style={{
                 ...styles.opcaoBtn,
-                background: nivelAtivo === n.label
-                  ? 'linear-gradient(135deg, #3f51b5, #1a237e)'
-                  : 'rgba(255,255,255,0.05)',
+                background: nivelAtivo === n.label ? 'linear-gradient(135deg, #3f51b5, #1a237e)' : 'rgba(255,255,255,0.05)',
                 border: nivelAtivo === n.label ? 'none' : '1px solid rgba(255,255,255,0.1)',
-              }} onClick={() => {
-                setNivelAtivo(n.label);
-                setAno(n.anos[0]);
-              }}>
+              }} onClick={() => { setNivelAtivo(n.label); setAno(n.anos[0]); }}>
                 {n.label}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Ano */}
         <div style={styles.campo}>
           <label style={styles.label}>📅 Turma</label>
           <div style={styles.opcoesBtns}>
             {anosDoNivel.map(a => (
               <button key={a} style={{
                 ...styles.opcaoBtn,
-                background: ano === a
-                  ? 'linear-gradient(135deg, #8B2FC9, #3f51b5)'
-                  : 'rgba(255,255,255,0.05)',
+                background: ano === a ? 'linear-gradient(135deg, #8B2FC9, #3f51b5)' : 'rgba(255,255,255,0.05)',
                 border: ano === a ? 'none' : '1px solid rgba(255,255,255,0.1)',
               }} onClick={() => setAno(a)}>
                 {a}
@@ -166,7 +154,6 @@ Regras:
           </div>
         </div>
 
-        {/* Tema */}
         <div style={styles.campo}>
           <label style={styles.label}>🎯 Tema específico (opcional)</label>
           <input
@@ -177,16 +164,13 @@ Regras:
           />
         </div>
 
-        {/* Quantidade */}
         <div style={styles.campo}>
           <label style={styles.label}>🔢 Quantidade de perguntas</label>
           <div style={styles.opcoesBtns}>
             {[3, 5, 8, 10].map(q => (
               <button key={q} style={{
                 ...styles.opcaoBtn,
-                background: quantidade === q
-                  ? 'linear-gradient(135deg, #00897b, #00695c)'
-                  : 'rgba(255,255,255,0.05)',
+                background: quantidade === q ? 'linear-gradient(135deg, #00897b, #00695c)' : 'rgba(255,255,255,0.05)',
                 border: quantidade === q ? 'none' : '1px solid rgba(255,255,255,0.1)',
               }} onClick={() => setQuantidade(q)}>
                 {q}
@@ -202,11 +186,7 @@ Regras:
         )}
 
         <button
-          style={{
-            ...styles.botaoGerar,
-            opacity: gerando ? 0.7 : 1,
-            cursor: gerando ? 'not-allowed' : 'pointer',
-          }}
+          style={{ ...styles.botaoGerar, opacity: gerando ? 0.7 : 1, cursor: gerando ? 'not-allowed' : 'pointer' }}
           onClick={gerarPerguntas}
           disabled={gerando}
         >
@@ -223,31 +203,20 @@ Regras:
 
 const styles = {
   botaoAbrir: {
-    width: '100%',
-    padding: '14px',
+    width: '100%', padding: '14px',
     background: 'linear-gradient(135deg, rgba(139,47,201,0.3), rgba(233,30,140,0.3))',
-    color: 'white',
-    border: '2px dashed rgba(139,47,201,0.6)',
-    borderRadius: '12px',
-    fontSize: '1rem',
-    fontWeight: '700',
-    cursor: 'pointer',
-    fontFamily: 'Arial, sans-serif',
-    marginBottom: '16px',
-    transition: 'all 0.2s',
+    color: 'white', border: '2px dashed rgba(139,47,201,0.6)',
+    borderRadius: '12px', fontSize: '1rem', fontWeight: '700',
+    cursor: 'pointer', fontFamily: 'Arial, sans-serif',
+    marginBottom: '16px', transition: 'all 0.2s',
   },
   container: {
-    background: 'rgba(10,0,20,0.95)',
-    borderRadius: '20px',
-    border: '1px solid rgba(139,47,201,0.4)',
-    overflow: 'hidden',
-    marginBottom: '16px',
-    boxShadow: '0 0 40px rgba(139,47,201,0.2)',
+    background: 'rgba(10,0,20,0.95)', borderRadius: '20px',
+    border: '1px solid rgba(139,47,201,0.4)', overflow: 'hidden',
+    marginBottom: '16px', boxShadow: '0 0 40px rgba(139,47,201,0.2)',
   },
   header: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
     padding: '14px 20px',
     background: 'linear-gradient(135deg, rgba(139,47,201,0.3), rgba(233,30,140,0.2))',
     borderBottom: '1px solid rgba(139,47,201,0.3)',
@@ -256,72 +225,36 @@ const styles = {
   headerIcon: { fontSize: '1.4rem' },
   headerTitulo: { fontSize: '0.95rem', fontWeight: '700', color: 'white' },
   btnFechar: {
-    background: 'rgba(255,255,255,0.1)',
-    border: 'none',
-    color: 'white',
-    borderRadius: '6px',
-    padding: '4px 10px',
-    cursor: 'pointer',
-    fontSize: '0.9rem',
-    fontFamily: 'Arial, sans-serif',
+    background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white',
+    borderRadius: '6px', padding: '4px 10px', cursor: 'pointer',
+    fontSize: '0.9rem', fontFamily: 'Arial, sans-serif',
   },
   form: { padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' },
   campo: { display: 'flex', flexDirection: 'column', gap: '8px' },
-  label: {
-    fontSize: '0.8rem',
-    color: '#C026D3',
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: '1px',
-  },
+  label: { fontSize: '0.8rem', color: '#C026D3', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' },
   opcoesBtns: { display: 'flex', flexWrap: 'wrap', gap: '6px' },
   opcaoBtn: {
-    padding: '6px 14px',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontSize: '0.8rem',
-    color: 'white',
-    fontFamily: 'Arial, sans-serif',
-    fontWeight: '600',
-    transition: 'all 0.2s',
+    padding: '6px 14px', borderRadius: '8px', cursor: 'pointer',
+    fontSize: '0.8rem', color: 'white', fontFamily: 'Arial, sans-serif',
+    fontWeight: '600', transition: 'all 0.2s',
   },
   input: {
-    width: '100%',
-    padding: '10px 14px',
-    borderRadius: '10px',
-    border: '1px solid rgba(139,47,201,0.3)',
-    background: 'rgba(255,255,255,0.05)',
-    color: 'white',
-    fontSize: '0.9rem',
-    outline: 'none',
-    fontFamily: 'Arial, sans-serif',
-    boxSizing: 'border-box',
+    width: '100%', padding: '10px 14px', borderRadius: '10px',
+    border: '1px solid rgba(139,47,201,0.3)', background: 'rgba(255,255,255,0.05)',
+    color: 'white', fontSize: '0.9rem', outline: 'none',
+    fontFamily: 'Arial, sans-serif', boxSizing: 'border-box',
   },
   botaoGerar: {
-    width: '100%',
-    padding: '14px',
+    width: '100%', padding: '14px',
     background: 'linear-gradient(135deg, #E91E8C, #C026D3, #8B2FC9)',
-    color: 'white',
-    border: 'none',
-    borderRadius: '12px',
-    fontSize: '1rem',
-    fontWeight: '700',
-    fontFamily: 'Arial, sans-serif',
+    color: 'white', border: 'none', borderRadius: '12px',
+    fontSize: '1rem', fontWeight: '700', fontFamily: 'Arial, sans-serif',
     boxShadow: '0 4px 20px rgba(233,30,140,0.4)',
   },
   erroBox: {
-    background: 'rgba(244,67,54,0.15)',
-    border: '1px solid rgba(244,67,54,0.4)',
-    borderRadius: '10px',
-    padding: '10px 14px',
-    fontSize: '0.85rem',
-    color: '#f44336',
-    textAlign: 'center',
+    background: 'rgba(244,67,54,0.15)', border: '1px solid rgba(244,67,54,0.4)',
+    borderRadius: '10px', padding: '10px 14px',
+    fontSize: '0.85rem', color: '#f44336', textAlign: 'center',
   },
-  disclaimer: {
-    fontSize: '0.72rem',
-    color: 'rgba(255,255,255,0.25)',
-    textAlign: 'center',
-    margin: 0,
-  },
+  disclaimer: { fontSize: '0.72rem', color: 'rgba(255,255,255,0.25)', textAlign: 'center', margin: 0 },
 };
