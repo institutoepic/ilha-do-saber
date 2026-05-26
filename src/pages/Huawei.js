@@ -1,3 +1,4 @@
+import QRCodeCard from '../components/QRCodeCard';
 import React, { useState, useEffect, useRef } from 'react';
 import { db } from '../firebase';
 import { ref, onValue } from 'firebase/database';
@@ -282,12 +283,7 @@ export default function Huawei() {
         {/* LATERAL */}
         <div style={styles.lateral}>
           <Placar alunos={alunos}/>
-          <div style={styles.linkCard}>
-            <p style={styles.linkLabel}>📱 Acesse pelo celular:</p>
-            <div style={styles.linkBox}>
-              <span style={styles.linkTexto}>{window.location.origin}</span>
-            </div>
-          </div>
+          <QRCodeCard baseUrl={window.location.origin}/>
         </div>
       </div>
     </div>
