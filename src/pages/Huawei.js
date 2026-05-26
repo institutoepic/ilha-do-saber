@@ -46,11 +46,11 @@ export default function Huawei() {
       setMissao(data);
     });
 
-    onValue(ref(db, 'sala/jogo'), snap => {
+onValue(ref(db, 'sala/jogo'), snap => {
       const data = snap.val();
       setJogo(data);
       setPerguntaAtual(data?.pergunta_atual ?? -1);
-      if (data?.encerrado) {
+      if (data?.encerrado && !data?.ativo) {
         setCelebrando(true);
         setTimeout(() => setCelebrando(false), 8000);
       }
