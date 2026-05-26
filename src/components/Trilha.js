@@ -216,8 +216,10 @@ export default function Trilha({ alunos, perguntaAtual }) {
         })}
 
         {/* AVATARES */}
-        {lista.map(([id, aluno], i) => {
-          const cpIndex = Math.min(aluno.checkpoint || 0, 5);
+       {lista.map(([id, aluno], i) => {
+          const pontos = aluno.pontos || 0;
+          const acertos = aluno.acertos || 0;
+          const cpIndex = Math.min(acertos, 5);
           const cp = CHECKPOINTS[cpIndex];
           const cx = cp.x * 10;
           const cy = cp.y * 3.4;
