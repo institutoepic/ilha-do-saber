@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
-const GEMINI_KEY = 'AIzaSyB9HAeuoo-_2t8tT-ZlOZG2ZpZsGH_TF7k';
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GEMINI_KEY}`;
+const GEMINI_KEY = process.env.REACT_APP_GEMINI_KEY;    
+
 
 const MATERIAS = ['Matemática','Português','Ciências','História','Geografia','Inglês','Artes','Ed. Física'];
 const NIVEIS = [
